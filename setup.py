@@ -62,11 +62,7 @@ if __name__ == "__main__":
             "docs": doc_requirements,
             "test": test_requirements,
             "internal": internal_requirements,
-            "dev": (
-                doc_requirements
-                + test_requirements
-                + other_dev_requirements
-            ),
+            "dev": (doc_requirements + test_requirements + other_dev_requirements),
         },
         zip_safe=False,
     )

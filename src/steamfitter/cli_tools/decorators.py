@@ -9,7 +9,6 @@ from steamfitter.cli_tools.metadata import (
     get_function_full_argument_mapping,
 )
 
-
 add_verbose = click.option(
     "-v",
     "verbose",
