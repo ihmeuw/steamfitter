@@ -24,7 +24,7 @@ def mock_datetime(mocker):
         def strptime(cls, s, _format):
             return datetime.strptime(s, _format)
 
-    return mocker.patch("covid_shared.cli_tools.run_directory.datetime.datetime", _mydatetime)
+    return mocker.patch("steamfitter.cli_tools.run_directory.datetime.datetime", _mydatetime)
 
 
 @pytest.fixture()
@@ -237,46 +237,32 @@ def test_mark_production(run_dir_root: Path):
 
 
 @pytest.mark.parametrize(
-    ("last_stage_version", "last_stage_directory", "last_stage_root", "result"),
+    ("last_stage_version", "last_stage_root", "result"),
     [
-        (ABSOLUTE_PATH_1, ABSOLUTE_PATH_2, None, ABSOLUTE_PATH_2),
-        (ABSOLUTE_PATH_1, ABSOLUTE_PATH_2, ABSOLUTE_PATH_1, ABSOLUTE_PATH_2),
-        (ABSOLUTE_PATH_1, None, None, ABSOLUTE_PATH_1),
-        (ABSOLUTE_PATH_1, None, ABSOLUTE_PATH_2, ABSOLUTE_PATH_1),
-        (None, ABSOLUTE_PATH_1, None, ABSOLUTE_PATH_1),
-        (
-            ABSOLUTE_PATH_1,
-            RELATIVE_PATH,
-            ABSOLUTE_PATH_2,
-            ABSOLUTE_PATH_2 / RELATIVE_PATH,
-        ),
-        (RELATIVE_PATH, None, ABSOLUTE_PATH_1, ABSOLUTE_PATH_1 / RELATIVE_PATH),
+        (ABSOLUTE_PATH_1, None, ABSOLUTE_PATH_1),
+        (ABSOLUTE_PATH_1, ABSOLUTE_PATH_1, ABSOLUTE_PATH_1),
+        (ABSOLUTE_PATH_1, ABSOLUTE_PATH_2, ABSOLUTE_PATH_1),
+        (RELATIVE_PATH, ABSOLUTE_PATH_2, ABSOLUTE_PATH_2 / RELATIVE_PATH,),
+        (RELATIVE_PATH, ABSOLUTE_PATH_1, ABSOLUTE_PATH_1 / RELATIVE_PATH),
     ],
 )
 def test_get_last_stage_directory(
-    last_stage_version, last_stage_directory, last_stage_root, result
+    last_stage_version, last_stage_root, result
 ):
-    assert (
-        cli_tools.get_last_stage_directory(
-            last_stage_version, last_stage_directory, last_stage_root
-        )
-        == result
-    )
+    directory = cli_tools.get_last_stage_directory(last_stage_version, last_stage_root)
+    assert directory == result
 
 
 @pytest.mark.parametrize(
-    ("last_stage_version", "last_stage_directory", "last_stage_root"),
+    ("last_stage_version", "last_stage_root"),
     [
-        (ABSOLUTE_PATH_1, RELATIVE_PATH, None),
-        (RELATIVE_PATH, None, None),
-        (RELATIVE_PATH, None, RELATIVE_PATH),
-        (RELATIVE_PATH, RELATIVE_PATH, RELATIVE_PATH),
+        (RELATIVE_PATH, None),
+        (RELATIVE_PATH, RELATIVE_PATH),
+        (RELATIVE_PATH, RELATIVE_PATH),
     ],
 )
 def test_get_last_stage_directory_errors(
-    last_stage_version, last_stage_directory, last_stage_root
+    last_stage_version, last_stage_root
 ):
     with pytest.raises(ValueError):
-        cli_tools.get_last_stage_directory(
-            last_stage_version, last_stage_directory, last_stage_root
-        )
+        cli_tools.get_last_stage_directory(last_stage_version, last_stage_root)
