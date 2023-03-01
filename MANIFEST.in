@@ -1,0 +1,11 @@
+include CHANGELOG.rst
+include CODE_OF_CONDUCT.rst
+include CONTRIBUTING.rst
+include LICENSE
+include README.rst
+
+recursive-include docs *
+prune docs/_build
+
+recursive-include src/steamfitter *.py *.yaml
+recursive-include tests *.py *txt *.yaml

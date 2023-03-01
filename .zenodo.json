@@ -1,0 +1,14 @@
+{
+  "license": "BSD-3-Clause",
+  "title": "ihmeuw/ght-scrapers",
+  "upload_type": "software",
+  "creators": [
+    {
+      "orcid": "0000-0001-7633-7804",
+      "affiliation": "Institute for Health Metrics and Evaluation",
+      "name": "James Collins"
+    }
+  ],
+  "access_right": "open",
+  "description": "ght-scrapers is an application for scraping data for the Global Health Threats project."
+}
