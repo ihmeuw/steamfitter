@@ -65,7 +65,6 @@ if __name__ == "__main__":
             "dev": (
                 doc_requirements
                 + test_requirements
-                + internal_requirements
                 + other_dev_requirements
             ),
         },
