@@ -1,8 +1,8 @@
 import pytest
 from loguru import logger
 
-from covid_shared.cli_tools import monitor_application
-from covid_shared.cli_tools.cleanup import _raise_if_exception
+from steamfitter.cli_tools import monitor_application
+from steamfitter.cli_tools.cleanup import _raise_if_exception
 
 
 def function_without_exception(app_metadata):

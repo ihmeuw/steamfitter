@@ -1,6 +1,6 @@
 import pytest
 
-from covid_shared.ihme_deps import _lazy_import_callable
+from steamfitter.ihme_deps import _lazy_import_callable
 
 
 def test_lazy_import_callable_pass():

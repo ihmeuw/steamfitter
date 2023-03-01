@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
-from covid_shared.cli_tools.metadata import Metadata, RunMetadata
-from covid_shared.cli_tools.run_directory import make_links
+from steamfitter.cli_tools.metadata import Metadata, RunMetadata
+from steamfitter.cli_tools.run_directory import make_links
 
 
 def finish_application(
