@@ -14,11 +14,12 @@ if __name__ == "__main__":
         long_description = f.read()
 
     install_requirements = [
-        "numpy",
-        "pandas",
-        "pyyaml>=5.1",
         "click",
         "loguru",
+        "numpy",
+        "pandas",
+        "pathos",
+        "pyyaml>=5.1",
         "tqdm",
     ]
 
