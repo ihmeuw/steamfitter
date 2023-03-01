@@ -242,13 +242,15 @@ def test_mark_production(run_dir_root: Path):
         (ABSOLUTE_PATH_1, None, ABSOLUTE_PATH_1),
         (ABSOLUTE_PATH_1, ABSOLUTE_PATH_1, ABSOLUTE_PATH_1),
         (ABSOLUTE_PATH_1, ABSOLUTE_PATH_2, ABSOLUTE_PATH_1),
-        (RELATIVE_PATH, ABSOLUTE_PATH_2, ABSOLUTE_PATH_2 / RELATIVE_PATH,),
+        (
+            RELATIVE_PATH,
+            ABSOLUTE_PATH_2,
+            ABSOLUTE_PATH_2 / RELATIVE_PATH,
+        ),
         (RELATIVE_PATH, ABSOLUTE_PATH_1, ABSOLUTE_PATH_1 / RELATIVE_PATH),
     ],
 )
-def test_get_last_stage_directory(
-    last_stage_version, last_stage_root, result
-):
+def test_get_last_stage_directory(last_stage_version, last_stage_root, result):
     directory = cli_tools.get_last_stage_directory(last_stage_version, last_stage_root)
     assert directory == result
 
@@ -261,8 +263,6 @@ def test_get_last_stage_directory(
         (RELATIVE_PATH, RELATIVE_PATH),
     ],
 )
-def test_get_last_stage_directory_errors(
-    last_stage_version, last_stage_root
-):
+def test_get_last_stage_directory_errors(last_stage_version, last_stage_root):
     with pytest.raises(ValueError):
         cli_tools.get_last_stage_directory(last_stage_version, last_stage_root)
