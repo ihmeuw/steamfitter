@@ -1,4 +1,3 @@
-from steamfitter.cli_tools.cleanup import finish_application
 from steamfitter.cli_tools.decorators import (
     add_output_options,
     add_verbose,
@@ -18,12 +17,9 @@ from steamfitter.cli_tools.logging import (
 )
 from steamfitter.cli_tools.metadata import (
     Metadata,
-    RunMetadata,
-    YamlIOMixin,
     get_function_full_argument_mapping,
     handle_exceptions,
     monitor_application,
-    update_with_previous_metadata,
 )
 from steamfitter.cli_tools.run_directory import (
     get_current_previous_version,

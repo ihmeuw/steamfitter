@@ -2,12 +2,11 @@ import datetime
 import functools
 import sys
 import time
-import traceback
 import types
 from bdb import BdbQuit
 from pathlib import Path
 from pprint import pformat
-from typing import Any, Callable, Dict, Mapping, Optional, Union
+from typing import Any, Callable, Dict, Mapping, Union
 
 import click
 import yaml
@@ -16,12 +15,8 @@ from loguru import logger
 from steamfitter import paths
 
 
-class RunMetadata:
-    """Metadata class meant specifically for application runners.
-
-    Silently records profiling and provenance information.
-
-    """
+class Metadata:
+    """Silently records profiling and provenance information for an application."""
 
     def __init__(self, application_name: str):
         self._start = time.time()
@@ -90,11 +85,11 @@ def monitor_application(
     func: types.FunctionType,
     logger_: Any,
     with_debugger: bool,
-    app_metadata: Optional[RunMetadata] = None,
+    app_metadata: Metadata,
 ) -> Callable:
     """Monitors an application for errors and injects a metadata container.
 
-    Catches records them if they occur. Can also be configured to drop
+    Catches errors and records them if they occur. Can also be configured to drop
     a user into an interactive debugger on failure.
 
     Parameters
@@ -110,8 +105,6 @@ def monitor_application(
         Record for application metadata.
 
     """
-    if app_metadata is None:
-        app_metadata = RunMetadata()
 
     @functools.wraps(func)
     def _wrapped(*args, **kwargs):
@@ -141,8 +134,7 @@ def monitor_application(
             }
 
             if with_debugger:
-                import pd
-
+                import pdb
                 pdb.post_mortem()
         finally:
             return app_metadata, result

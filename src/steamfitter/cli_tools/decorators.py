@@ -5,7 +5,7 @@ from pathlib import Path
 import click
 
 from steamfitter.cli_tools.metadata import (
-    RunMetadata,
+    Metadata,
     get_function_full_argument_mapping,
 )
 
@@ -75,28 +75,21 @@ def add_output_options(default_output_root: Path):
     return wrapper
 
 
-def pass_run_metadata(run_metadata: RunMetadata = RunMetadata()):
-    """Decorator for cli entry points to inject a run metadata object and record arguments.
+def pass_run_metadata(app_entry_point: types.FunctionType):
 
-    Parameters
-    ----------
-    run_metadata
-        The metadata object to inject.
+    run_metadata = Metadata(app_entry_point.__name__)
 
-    """
+    @functools.wraps(app_entry_point)
+    def _wrapped(*args, **kwargs):
 
-    def _pass_run_metadata(app_entry_point: types.FunctionType):
-        @functools.wraps(app_entry_point)
-        def _wrapped(*args, **kwargs):
-            # Record arguments for the run and inject the metadata.
-            run_metadata[
-                "tool_name"
-            ] = f"{app_entry_point.__module__}:{app_entry_point.__name__}"
-            run_metadata["run_arguments"] = get_function_full_argument_mapping(
-                app_entry_point, run_metadata, *args, **kwargs
-            )
-            return app_entry_point(run_metadata, *args, **kwargs)
+        # Record arguments for the run and inject the metadata.
+        run_metadata[
+            "tool_name"
+        ] = f"{app_entry_point.__module__}:{app_entry_point.__name__}"
 
-        return _wrapped
+        run_metadata["run_arguments"] = get_function_full_argument_mapping(
+            app_entry_point, run_metadata, *args, **kwargs
+        )
+        return app_entry_point(run_metadata, *args, **kwargs)
 
-    return _pass_run_metadata
+    return _wrapped
