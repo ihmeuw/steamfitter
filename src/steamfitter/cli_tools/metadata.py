@@ -17,31 +17,42 @@ from loguru import logger
 from steamfitter import paths
 
 
-class YamlIOMixin:
-    """Mixin class for reading and writing data from yaml files."""
+class RunMetadata(Metadata):
+    """Metadata class meant specifically for application runners.
 
-    @staticmethod
-    def _load(in_file: typing.TextIO) -> Dict:
-        return yaml.load(in_file)
-
-    @staticmethod
-    def _write(data: Dict[str, Any], out_file: typing.TextIO):
-        yaml.dump(data, out_file)
-
-
-class Metadata:
-    """Base metadata class.  Looks and feels like a dict with a limited API.
-
-    This class is meant for recording metadata for applications and run
-    environments and forwarding that information across pipeline stages.
-
-    This class provides the interface for file I/O, but does not implement
-    it.
+    Silently records profiling and provenance information.
 
     """
 
-    def __init__(self, *args, **kwargs):
-        self._metadata = {}
+    def __init__(self, application_name: str):
+        self._start = time.time()
+        self.application_name = application_name
+        self._metadata = {
+            self.application_name: {
+                "start_time": self._get_time(),
+                "end_time": None,
+                "run_time_seconds": None,
+                "provenance": {},
+            },
+        }
+
+    @staticmethod
+    def _get_time():
+        return datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    def __getitem__(self, metadata_key: str) -> str:
+        return self._metadata[self.application_name][metadata_key]
+
+    def __setitem__(self, metadata_key: str, value: str) -> None:
+        if not isinstance(value, str):
+            raise TypeError("Metadata values must be strings.")
+        self._metadata[self.application_name][metadata_key] = value
+
+    def __contains__(self, metadata_key: str):
+        return metadata_key in self._metadata[self.application_name]
+
+    def to_dict(self):
+        """Give back a dict version of the metadata."""
+        return self._metadata[self.application_name].copy()
 
     def update(self, metadata_update: Mapping):
         """Dictionary style update of metadata."""
@@ -49,72 +60,28 @@ class Metadata:
         for key, value in metadata_update.items():
             self[key] = value
 
-    def update_from_file(self, metadata_key: str, metadata_file: typing.TextIO):
-        """Loads a metadata file from disk and stores it in the key."""
-        logger.warning(
-            "Base metadata information cannot be constructed from a file. Returning empty metadata."
-        )
-
-    def to_dict(self):
-        """Give back a dict version of the metadata."""
-        return self._metadata.copy()
-
-    def __getitem__(self, metadata_key: str):
-        return self._metadata[metadata_key]
-
-    def __setitem__(self, metadata_key: str, value: Any):
-        if metadata_key in self:
-            # This feels like a weird use of KeyError.  AttributeError also
-            # feels wrong.  Maybe write a custom error later.
-            raise KeyError(f"Metadata key {metadata_key} has already been set.")
-        self._metadata[metadata_key] = value
-
-    def __contains__(self, metadata_key: str):
-        return metadata_key in self._metadata
-
-    def dump(self, metadata_file: typing.TextIO):
-        """Interface to dump metadata to disk."""
-        logger.warning(
-            "Base metadata class should not be used to dump information to a file."
-        )
-        pass
-
-    def __repr__(self):
-        return self.__class__.__name__
-
-
-class RunMetadata(Metadata, YamlIOMixin):
-    """Metadata class meant specifically for application runners.
-
-    Silently records profiling and provenance information.
-
-    """
-
-    def __init__(self, *args, **kwargs):
-        self._start = time.time()
-        super().__init__(*args, **kwargs)
-        self["start_time"] = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-
-    def update_from_path(self, metadata_key: str, metadata_path: Union[str, Path]):
-        """Updates metadata from a metadata file path."""
-        metadata_path = Path(metadata_path)
+    def record_prior_stage_provenance(self, prior_stage_metadata_file: Union[str, Path]):
+        """Records provenance information from a prior stage."""
+        metadata_path = Path(prior_stage_metadata_file)
         if not metadata_path.name == paths.METADATA_FILE_NAME.name:
             raise ValueError("Can only update from `metadata.yaml` files.")
-        with metadata_path.open() as metadata_file:
-            self.update_from_file(metadata_key, metadata_file)
 
-    def update_from_file(self, metadata_key: str, metadata_file: typing.TextIO):
-        """Loads a metadata file from disk and stores it in the key."""
-        self._metadata[metadata_key] = yaml.full_load(metadata_file)
+        with metadata_path.open() as metadata_file:
+            self._metadata[self.application_name]["provenance"].update(
+                yaml.full_load(metadata_file)
+            )
 
     def dump(self, metadata_file_path: Union[str, Path]):
-        self._metadata["run_time"] = f"{time.time() - self._start:.2f} seconds"
+        self["end_time"] = self._get_time()
+        self._metadata["run_time_seconds"] = f"{time.time() - self._start:.4f}"
+
         try:
             with Path(metadata_file_path).open("w") as metadata_file:
-                self._write(self._metadata, metadata_file)
+                yaml.dump(self._metadata, metadata_file)
         except FileNotFoundError:
             logger.warning(
-                f"Output directory for {metadata_file.name} does not exist. Dumping metadata to console."
+                f"Output directory for {metadata_file.name} does not exist. "
+                f"Dumping metadata to console."
             )
             click.echo(pformat(self._metadata))
 
