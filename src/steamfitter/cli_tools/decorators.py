@@ -4,10 +4,7 @@ from pathlib import Path
 
 import click
 
-from steamfitter.cli_tools.metadata import (
-    Metadata,
-    get_function_full_argument_mapping,
-)
+from steamfitter.cli_tools.metadata import Metadata, get_function_full_argument_mapping
 
 add_verbose = click.option(
     "-v",
@@ -76,16 +73,12 @@ def add_output_options(default_output_root: Path):
 
 
 def pass_run_metadata(app_entry_point: types.FunctionType):
-
     run_metadata = Metadata(app_entry_point.__name__)
 
     @functools.wraps(app_entry_point)
     def _wrapped(*args, **kwargs):
-
         # Record arguments for the run and inject the metadata.
-        run_metadata[
-            "tool_name"
-        ] = f"{app_entry_point.__module__}:{app_entry_point.__name__}"
+        run_metadata["tool_name"] = f"{app_entry_point.__module__}:{app_entry_point.__name__}"
 
         run_metadata["run_arguments"] = get_function_full_argument_mapping(
             app_entry_point, run_metadata, *args, **kwargs
