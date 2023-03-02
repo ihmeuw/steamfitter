@@ -4,7 +4,6 @@ import sys
 import time
 import traceback
 import types
-import typing
 from bdb import BdbQuit
 from pathlib import Path
 from pprint import pformat
@@ -17,7 +16,7 @@ from loguru import logger
 from steamfitter import paths
 
 
-class RunMetadata(Metadata):
+class RunMetadata:
     """Metadata class meant specifically for application runners.
 
     Silently records profiling and provenance information.
@@ -39,12 +38,13 @@ class RunMetadata(Metadata):
     @staticmethod
     def _get_time():
         return datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+
     def __getitem__(self, metadata_key: str) -> str:
         return self._metadata[self.application_name][metadata_key]
 
-    def __setitem__(self, metadata_key: str, value: str) -> None:
-        if not isinstance(value, str):
-            raise TypeError("Metadata values must be strings.")
+    def __setitem__(self, metadata_key: str, value: Union[str, Dict]) -> None:
+        if not isinstance(value, (str, dict)):
+            raise TypeError("Metadata values must be strings or dictionaries of strings.")
         self._metadata[self.application_name][metadata_key] = value
 
     def __contains__(self, metadata_key: str):
@@ -90,7 +90,7 @@ def monitor_application(
     func: types.FunctionType,
     logger_: Any,
     with_debugger: bool,
-    app_metadata: Optional[Metadata] = None,
+    app_metadata: Optional[RunMetadata] = None,
 ) -> Callable:
     """Monitors an application for errors and injects a metadata container.
 
@@ -111,7 +111,7 @@ def monitor_application(
 
     """
     if app_metadata is None:
-        app_metadata = Metadata()
+        app_metadata = RunMetadata()
 
     @functools.wraps(func)
     def _wrapped(*args, **kwargs):
@@ -123,24 +123,25 @@ def monitor_application(
                 func, app_metadata, *args, **kwargs
             )
             result = func(app_metadata, *args, **kwargs)
-            app_metadata["success"] = True
+            app_metadata["success"] = "True"
         except (BdbQuit, KeyboardInterrupt):
-            app_metadata["success"] = False
-            app_metadata["error_info"] = "User interrupt."
+            app_metadata["success"] = "False"
+            app_metadata["error_info"] = {
+                "exception_type": "User interrupt.",
+                "exception_value": "User interrupted application.",
+            }
         except Exception as e:
             # For general errors, write exception info to the metadata.
-            app_metadata["success"] = False
+            app_metadata["success"] = "False"
             logger_.exception("Uncaught exception {}".format(e))
             exc_type, exc_value, exc_traceback = sys.exc_info()
             app_metadata["error_info"] = {
-                "exception_type": exc_type,
-                "exception_value": exc_value,
-                "exc_traceback": traceback.format_tb(exc_traceback),
+                "exception_type": str(exc_type),
+                "exception_value": str(exc_value),
             }
-            if with_debugger:
-                import pdb
 
-                traceback.print_exc()
+            if with_debugger:
+                import pd
                 pdb.post_mortem()
         finally:
             return app_metadata, result
@@ -158,7 +159,7 @@ def handle_exceptions(func: Callable, logger_: Any, with_debugger: bool) -> Call
         except (BdbQuit, KeyboardInterrupt):
             raise
         except Exception as e:
-            logger.exception("Uncaught exception {}".format(e))
+            logger_.exception("Uncaught exception {}".format(e))
             if with_debugger:
                 import pdb
                 import traceback
@@ -171,15 +172,11 @@ def handle_exceptions(func: Callable, logger_: Any, with_debugger: bool) -> Call
     return wrapped
 
 
-def update_with_previous_metadata(run_metadata: RunMetadata, input_root: Path) -> RunMetadata:
-    """Convenience function for updating metadata from an input source."""
-    key = str(input_root.resolve()).replace(" ", "_").replace("-", "_").lower() + "_metadata"
-    with (input_root / paths.METADATA_FILE_NAME).open() as input_metadata_file:
-        run_metadata.update_from_file(key, input_metadata_file)
-    return run_metadata
-
-
-def get_function_full_argument_mapping(func: types.FunctionType, *args, **kwargs) -> Dict:
+def get_function_full_argument_mapping(
+    func: types.FunctionType,
+    *args,
+    **kwargs,
+) -> Dict[str, str]:
     """Get a dict representation of all args and kwargs for a function."""
     # Grab all variables in the enclosing namespace.  Args will be first.
     # Note: This may rely on the CPython implementation.  Not sure.
