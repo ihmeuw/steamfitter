@@ -142,6 +142,7 @@ def monitor_application(
 
             if with_debugger:
                 import pd
+
                 pdb.post_mortem()
         finally:
             return app_metadata, result
