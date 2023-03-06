@@ -6,12 +6,18 @@ import shutil
 
 import inflection
 
+from steamfitter.exceptions import SteamfitterException
 from steamfitter.app.filesystem.archive import ARCHIVE_POLICIES
 from steamfitter.app.filesystem.metadata import Metadata
 from steamfitter.shell_tools import mkdir
 
 
 DEFAULT_VALUE_FACTORY = Callable[[], Any]
+
+
+class SteamfitterDirectoryError(SteamfitterException):
+    """Exception raised for issues managing steamfitter directories."""
+    pass
 
 
 class Directory:
@@ -95,8 +101,15 @@ class Directory:
         return cls(path)
 
     @classmethod
-    def remove(cls, root: Path, **kwargs):
+    def remove(cls, root: Path, safe=True, **kwargs):
         """Rollback the creation of a directory."""
+        if safe:
+            instance = cls(root, **kwargs)
+            managed = instance["directory_type"] == cls.make_directory_type()
+            if not managed:
+                raise SteamfitterDirectoryError(
+                    f"Cannot remove {str(root)} because it is not managed by steamfitter."
+                )
         name = cls.make_name(root=root, **kwargs)
         path = root / name
         shutil.rmtree(path, ignore_errors=True)
@@ -119,7 +132,6 @@ class Directory:
     def make_description(cls, **kwargs) -> str:
         """Make a description for a directory."""
         return cls.DESCRIPTION_TEMPLATE.format(**kwargs)
-
 
     @classmethod
     def make_extra_metadata_fields(cls, metadata_args: Dict, **kwargs) -> Dict:

@@ -2,8 +2,10 @@ from pathlib import Path
 
 import yaml
 
+from steamfitter.exceptions import SteamfitterException
 
-class ConfigurationError(Exception):
+
+class SteamfitterConfigurationError(SteamfitterException):
     """An exception raised when there is an error with the configuration."""
     pass
 
@@ -44,7 +46,7 @@ class Configuration:
     def add_project(self, project_name: str, set_default: bool) -> None:
         """Add a project to the configuration."""
         if project_name in self._config["projects"]:
-            raise ConfigurationError(
+            raise SteamfitterConfigurationError(
                 f"Project {project_name} already exists in the configuration."
             )
 
@@ -58,7 +60,7 @@ class Configuration:
     def remove_project(self, project_name: str, new_default: str = "") -> None:
         """Remove a project from the configuration."""
         if project_name not in self._config["projects"]:
-            raise ConfigurationError(
+            raise SteamfitterConfigurationError(
                 f"Project {project_name} does not exist in the configuration."
             )
 
@@ -75,7 +77,7 @@ class Configuration:
     @classmethod
     def _load(cls) -> dict:
         if not cls._path.exists():
-            raise ConfigurationError(f"Configuration file {cls._path} does not exist.")
+            raise SteamfitterConfigurationError(f"Configuration file {cls._path} does not exist.")
         with cls._path.open() as f:
             config = yaml.full_load(f)
         return config
