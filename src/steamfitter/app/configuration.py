@@ -55,7 +55,7 @@ class Configuration:
 
         self._dump(self._config)
 
-    def rollback_add_project(self, project_name: str) -> None:
+    def remove_project(self, project_name: str, new_default: str = "") -> None:
         """Remove a project from the configuration."""
         if project_name not in self._config["projects"]:
             raise ConfigurationError(
@@ -64,9 +64,13 @@ class Configuration:
 
         self._config["projects"].remove(project_name)
         if self._config["default_project"] == project_name:
-            self._config["default_project"] = self._previous_default_project
+            self._config["default_project"] = new_default
 
         self._dump(self._config)
+
+    def rollback_add_project(self, project_name: str) -> None:
+        """Rollback the addition of a project to the configuration."""
+        self.remove_project(project_name, new_default=self._previous_default_project)
 
     @classmethod
     def _load(cls) -> dict:

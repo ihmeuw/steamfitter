@@ -95,7 +95,7 @@ class Directory:
         return cls(path)
 
     @classmethod
-    def rollback_creation(cls, root: Path, **kwargs):
+    def remove(cls, root: Path, **kwargs):
         """Rollback the creation of a directory."""
         name = cls.make_name(root=root, **kwargs)
         path = root / name

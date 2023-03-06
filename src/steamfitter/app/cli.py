@@ -71,7 +71,7 @@ def add(project_name: str, description: str, set_default: bool):
             description=description,
         )
     except Exception:
-        ProjectDirectory.rollback_creation(config.projects_root, name=project_name)
+        ProjectDirectory.remove(config.projects_root, name=project_name)
         config.rollback_add_project(project_name)
         raise
 
@@ -80,3 +80,16 @@ def add(project_name: str, description: str, set_default: bool):
         click.echo(f"Project {project_name} set as the default project.")
 
 
+@steamfitter.command()
+@click.argument("project_name")
+def remove(project_name: str):
+    """Remove a project from the configuration."""
+    if not Configuration.exists():
+        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
+        return
+
+    config = Configuration()
+    project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
+    config.remove_project(project_name)
+    ProjectDirectory.remove(config.projects_root, name=project_name)
+    click.echo(f"Project {project_name} removed from the configuration.")
