@@ -107,7 +107,6 @@ class Metadata:
             If the metadata file already exists and `exist_ok` is False.
 
         """
-        if path.exists() and not exist_ok:
-            raise FileExistsError(f"Metadata file {path} already exists.")
+        path.touch(mode=0o644, exist_ok=exist_ok)
         with path.open("w") as f:
             yaml.dump(metadata, f)
