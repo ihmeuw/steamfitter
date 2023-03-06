@@ -6,6 +6,8 @@ Tutorials
 
 .. toctree::
    :maxdepth: 2
-   :glob:
+
+    configuration
+    adding_a_project
 
 

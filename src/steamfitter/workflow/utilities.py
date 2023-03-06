@@ -2,8 +2,8 @@ import socket
 from pathlib import Path
 from typing import Tuple, Union
 
-from covid_shared import shell_tools
-from covid_shared.ihme_deps import Tool
+from steamfitter import shell_tools
+from steamfitter.ihme_deps import Tool
 
 
 class JobmonTool:

@@ -1,5 +1,7 @@
+.. _installation-guide:
+
 =======================
-Installing ght-scrapers
+Installing steamfitter
 =======================
 
 .. contents::

@@ -123,7 +123,7 @@ Our task should have something like the following structure
 .. code-block:: python
 
    import click
-   from covid_shared import cli_tools
+   from steamfitter import cli_tools
    from loguru import logger
 
    def my_task_main(output_version: str, draw: int):
@@ -259,7 +259,7 @@ in which we'll use the tools defined in this subpackage.
    import shutil
    from typing import NamedTuple
 
-   from covid_shared import workflow
+   from steamfitter import workflow
 
    import MY_PACKAGE_NAME
 
@@ -428,7 +428,7 @@ Next we'll write the application main to build the workflow.  We'll just put it 
 
 .. code-block:: python
 
-   from covid_shared import cli_tools, ihme_deps
+   from steamfitter import cli_tools, ihme_deps
    from loguru import logger
 
    from MY_PACKAGE_NAME.workflow import MyWorkflowSpecification, MyWorkflow
@@ -488,7 +488,7 @@ tooling.  We'll stick this in `cli.py`.
 .. code-block:: python
 
    import click
-   from covid_shared import cli_tools, paths
+   from steamfitter import cli_tools, paths
    from loguru import logger
 
    from MY_PACKAGE_NAME.main import run_my_workflow

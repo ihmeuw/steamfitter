@@ -15,6 +15,7 @@ if __name__ == "__main__":
 
     install_requirements = [
         "click",
+        "inflection",
         "loguru",
         "numpy",
         "pandas",
@@ -65,4 +66,9 @@ if __name__ == "__main__":
             "dev": (doc_requirements + test_requirements + other_dev_requirements),
         },
         zip_safe=False,
+        entry_points="""
+            [console_scripts]
+            steamfitter=steamfitter.app.cli:steamfitter
+            scrape=steamfitter.app.scraping.cli:scrape
+        """,
     )

@@ -4,11 +4,10 @@ import functools
 from pathlib import Path
 from typing import Dict, Type, TypeVar
 
-from covid_shared import paths
-from covid_shared.ihme_deps import Task, WorkflowRunStatus
-from covid_shared.workflow.specification import TaskSpecification, WorkflowSpecification
-from covid_shared.workflow.utilities import JobmonTool, get_cluster_name, make_log_dirs
-from loguru import logger
+from steamfitter import paths
+from steamfitter.ihme_deps import Task, WorkflowRunStatus
+from steamfitter.workflow.specification import TaskSpecification, WorkflowSpecification
+from steamfitter.workflow.utilities import JobmonTool, get_cluster_name, make_log_dirs
 
 
 class TaskTemplate(abc.ABC):

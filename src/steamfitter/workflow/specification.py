@@ -5,8 +5,8 @@ from typing import Dict, Type, TypeVar, Union
 
 from loguru import logger
 
-DEFAULT_PROJECT = "proj_covid"
-DEFAULT_QUEUE = "d.q"
+DEFAULT_PROJECT = "proj_rapidresponse"
+DEFAULT_QUEUE = "all.q"
 
 _TaskSpecDict = Dict[str, Union[str, int]]
 

@@ -1,3 +1,3 @@
-from covid_shared.workflow.specification import TaskSpecification, WorkflowSpecification
-from covid_shared.workflow.template import TaskTemplate, WorkflowTemplate
-from covid_shared.workflow.utilities import get_jobmon_tool
+from steamfitter.workflow.specification import TaskSpecification, WorkflowSpecification
+from steamfitter.workflow.template import TaskTemplate, WorkflowTemplate
+from steamfitter.workflow.utilities import get_jobmon_tool

@@ -53,7 +53,7 @@ def mkdir(
     path
         Path of the directory to create.
     mode
-        Mode of directory to be created.
+        Permission mode of directory to be created.
     exists_ok
         If False, raises FileExistsError if the directory already exists.
     parents
