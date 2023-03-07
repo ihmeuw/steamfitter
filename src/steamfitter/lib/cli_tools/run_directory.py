@@ -5,9 +5,9 @@ from typing import Optional, Tuple, Union
 
 from loguru import logger
 
-from steamfitter import paths
-from steamfitter.cli_tools.metadata import Metadata
-from steamfitter.shell_tools import mkdir
+from steamfitter.lib import paths
+from steamfitter.lib.cli_tools import Metadata
+from steamfitter.lib.shell_tools import mkdir
 
 
 def make_run_directory(output_root: Union[str, Path]) -> Path:

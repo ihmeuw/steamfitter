@@ -1,3 +1,12 @@
+"""
+===========
+Shell Tools
+===========
+
+This module provides a collection of python wrappers for common shell utilities.
+
+"""
+
 import os
 import shlex
 import subprocess

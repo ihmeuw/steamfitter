@@ -88,8 +88,9 @@ class ExtractedDataDirectory(Directory):
         )
         self.update(
             source_count=source_count,
-            sources=self["sources"] + [source_dir.name],
+            sources=self["sources"] + [source_dir["name"]],
         )
+
 
     @classmethod
     def add_initial_content(cls, path: Path, **kwargs):

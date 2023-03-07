@@ -5,7 +5,7 @@ from typing import Callable
 
 import pytest
 
-from steamfitter import cli_tools, paths
+from steamfitter.lib import cli_tools, paths
 
 MOCK_DATETIME = datetime(2020, 4, 25, 17, 5, 55)
 ABSOLUTE_PATH_1 = Path("/absolute/path/one")

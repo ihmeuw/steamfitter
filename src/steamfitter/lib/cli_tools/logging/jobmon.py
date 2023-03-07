@@ -1,82 +1,18 @@
+"""
+==============
+Jobmon Logging
+==============
+
+Tools for handling jobmon logging.
+
+"""
 import logging
-import sys
-from pathlib import Path
-from typing import TextIO, Tuple, Union
+from typing import Tuple, Union
 
 from loguru import logger
 
-from steamfitter import paths
-from steamfitter.shell_tools import mkdir
 
 JOBMON_LOGGING_LEVEL = 5  # A lower level than logging.DEBUG.
-DEFAULT_LOG_MESSAGING_FORMAT = (
-    "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-    "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> "
-    "- <level>{message}</level> - {extra}"
-)
-LOG_FORMATS = {
-    # Keys are verbosity.  Specify special log formats here.
-    0: ("WARNING", DEFAULT_LOG_MESSAGING_FORMAT),
-    1: ("INFO", DEFAULT_LOG_MESSAGING_FORMAT),
-    2: ("DEBUG", DEFAULT_LOG_MESSAGING_FORMAT),
-    3: (JOBMON_LOGGING_LEVEL, DEFAULT_LOG_MESSAGING_FORMAT),
-}
-
-
-def configure_logging_to_terminal(verbose: int) -> None:
-    """Setup logging to sys.stdout.
-
-    This is presumed to be one of the first calls made in an
-    application entry point. Any logging that occurs before this
-    call won't be intercepted or handled with the standard
-    logging configuration.
-
-    """
-    logger.remove(0)  # Clear default configuration
-    level = LOG_FORMATS.get(verbose, LOG_FORMATS[max(LOG_FORMATS.keys())])[0]
-    intercept_jobmon_logs(level)
-    add_logging_sink(sys.stdout, verbose, colorize=True)
-
-
-def configure_logging_to_files(output_path: Path) -> None:
-    """Sets up logging to a file in an output directory.
-
-    Logs to files are done with the highest verbosity to allow
-    for debugging if necessary.
-
-    """
-    log_path = output_path / paths.LOG_DIR
-    mkdir(log_path, exists_ok=True)
-    add_logging_sink(
-        output_path / paths.LOG_DIR / paths.DETAILED_LOG_FILE_NAME,
-        verbose=3,
-        serialize=True,
-    )
-    add_logging_sink(
-        output_path / paths.LOG_DIR / paths.LOG_FILE_NAME,
-        verbose=3,
-    )
-
-
-def add_logging_sink(
-    sink: Union[TextIO, Path],
-    verbose: int,
-    colorize: bool = False,
-    serialize: bool = False,
-) -> None:
-    """Add a new output file handle for logging."""
-    level, message_format = LOG_FORMATS.get(verbose, LOG_FORMATS[max(LOG_FORMATS.keys())])
-    logger.add(
-        sink,
-        colorize=colorize,
-        level=level,
-        format=message_format,
-        serialize=serialize,
-        filter={
-            # Suppress logs up to the level provided.
-            "urllib3": "WARNING",  # Uselessly (for us) noisy.
-        },
-    )
 
 
 class JobmonInterceptHandler(logging.Handler):
@@ -198,19 +134,3 @@ def intercept_jobmon_logs(level: Union[str, int]) -> None:
     for name, logger_ in logging.Logger.manager.loggerDict.items():
         if "jobmon" in name and not isinstance(logger_, logging.PlaceHolder):
             logger_.handlers = [handler]
-
-
-def list_loggers():
-    """Utility function for analyzing the logging environment."""
-    root_logger = logging.getLogger()
-    print("Root logger: ", root_logger)
-    for h in root_logger.handlers:
-        print(f"     %s" % h)
-
-    print("Other loggers")
-    print("=============")
-    for name, logger_ in logging.Logger.manager.loggerDict.items():
-        print("+ [%-20s] %s " % (name, logger_))
-        if not isinstance(logger_, logging.PlaceHolder):
-            for h in logger_.handlers:
-                print("     %s" % h)

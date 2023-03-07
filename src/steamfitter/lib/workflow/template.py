@@ -4,10 +4,9 @@ import functools
 from pathlib import Path
 from typing import Dict, Type, TypeVar
 
-from steamfitter import paths
-from steamfitter.ihme_deps import Task, WorkflowRunStatus
-from steamfitter.workflow.specification import TaskSpecification, WorkflowSpecification
-from steamfitter.workflow.utilities import JobmonTool, get_cluster_name, make_log_dirs
+from steamfitter.lib.ihme import Task, WorkflowRunStatus
+from steamfitter.lib.workflow.specification import TaskSpecification, WorkflowSpecification
+from steamfitter.lib.workflow.utilities import JobmonTool, get_cluster_name, make_log_dirs
 
 
 class TaskTemplate(abc.ABC):
@@ -83,7 +82,7 @@ class WorkflowTemplate(abc.ABC):
             workflow_specification.task_specifications
         )
 
-        stdout, stderr = make_log_dirs(Path(version) / paths.LOG_DIR)
+        stdout, stderr = make_log_dirs(Path(version) / "logs")
 
         cluster = get_cluster_name()
 

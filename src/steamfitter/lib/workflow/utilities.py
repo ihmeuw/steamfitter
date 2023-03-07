@@ -1,9 +1,15 @@
+"""
+================
+Jobmon Utilities
+================
+
+"""
 import socket
 from pathlib import Path
 from typing import Tuple, Union
 
-from steamfitter import shell_tools
-from steamfitter.ihme_deps import Tool
+from steamfitter.lib import shell_tools
+from steamfitter.lib.ihme import Tool
 
 
 class JobmonTool:
@@ -56,16 +62,15 @@ def make_log_dirs(log_dir: Union[str, Path]) -> Tuple[str, str]:
     return str(std_out), str(std_err)
 
 
-def get_cluster_name() -> "str":
+def get_cluster_name() -> str:
     hostname = socket.gethostname()
 
     if "slurm" in hostname:
         cluster, submit_host_marker = "slurm", "slogin"
-    elif "uge" in hostname:
-        cluster, submit_host_marker = "buster", "submit"
     else:
-        raise RuntimeError("This tool must be run from an IHME cluster.")
+        raise RuntimeError("This tool must be run from the IHME cluster.")
 
     if submit_host_marker in hostname:
         raise RuntimeError("This tool must not be run from a submit host.")
+
     return cluster

@@ -1,8 +1,9 @@
 from pathlib import Path
+import shutil
 
 import yaml
 
-from steamfitter.exceptions import SteamfitterException
+from steamfitter.lib.exceptions import SteamfitterException
 
 
 class SteamfitterConfigurationError(SteamfitterException):
@@ -29,6 +30,10 @@ class Configuration:
     @property
     def default_project(self) -> str:
         return self._config["default_project"]
+
+    def remove(self):
+        """Remove the configuration file from disk."""
+        shutil.rmtree(self._path.parent)
 
     @classmethod
     def create(cls, projects_root: str) -> "Configuration":

@@ -1,3 +1,13 @@
+"""
+========
+Parallel
+========
+
+This module simplifies the use of multiprocessing. It provides a single
+function, :func:`run_parallel`, that runs a function in parallel over a list of
+arguments.
+
+"""
 from multiprocessing import Pool as StdLibPool
 from typing import Any, Callable, List, Optional
 
@@ -6,25 +16,6 @@ import tqdm
 from pathos.multiprocessing import ProcessPool as PathosPool
 
 Loader = Callable[[Any, Optional[pd.Index], int, int, bool], pd.DataFrame]
-
-
-def is_notebook() -> bool:
-    """Are we running code in a jupyter notebook?
-
-    Code from https://stackoverflow.com/a/39662359
-    """
-    try:
-        # The get_ipython function will be in the global namespace if we're in
-        # an ipython-like environment (including jupyter notebooks).
-        shell = get_ipython().__class__.__name__
-        if shell == "ZMQInteractiveShell":
-            return True  # Jupyter notebook or qtconsole
-        elif shell == "TerminalInteractiveShell":
-            return False  # Terminal running IPython
-        else:
-            return False  # Other type (?)
-    except NameError:
-        return False  # Probably standard Python interpreter
 
 
 def run_parallel(
@@ -83,3 +74,22 @@ def run_parallel(
                 )
             )
     return result
+
+
+def is_notebook() -> bool:
+    """Are we running code in a jupyter notebook?
+
+    Code from https://stackoverflow.com/a/39662359
+    """
+    try:
+        # The get_ipython function will be in the global namespace if we're in
+        # an ipython-like environment (including jupyter notebooks).
+        shell = get_ipython().__class__.__name__
+        if shell == "ZMQInteractiveShell":
+            return True  # Jupyter notebook or qtconsole
+        elif shell == "TerminalInteractiveShell":
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False  # Probably standard Python interpreter

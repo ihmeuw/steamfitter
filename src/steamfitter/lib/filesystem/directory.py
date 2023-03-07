@@ -8,10 +8,10 @@ import shutil
 
 import inflection
 
-from steamfitter.exceptions import SteamfitterException
-from steamfitter.app.filesystem.archive import ARCHIVE_POLICIES
-from steamfitter.app.filesystem.metadata import Metadata
-from steamfitter.shell_tools import mkdir
+from steamfitter.lib.exceptions import SteamfitterException
+from steamfitter.lib.filesystem.archive import ARCHIVE_POLICIES
+from steamfitter.lib.filesystem.metadata import Metadata
+from steamfitter.lib.shell_tools import mkdir
 
 
 DEFAULT_VALUE_FACTORY = Callable[[], Any]
@@ -69,7 +69,7 @@ class Directory:
 
     @property
     def path(self) -> Path:
-        return self._metadata["root"]
+        return Path(self._metadata["root"])
 
     @property
     def metadata(self) -> dict:
@@ -79,19 +79,9 @@ class Directory:
         """Return the value of a directory property."""
         return self._metadata[item]
 
-    def __getattr__(self, key: str):
-        """Return the value of a directory property."""
-        if key in self._metadata:
-            return self._metadata[key]
-        raise AttributeError(f"{self.metadata_type} metadata has no attribute {key}.")
-
     def __setitem__(self, key, value):
         """Set the value of a directory property."""
         self._metadata[key] = value
-
-    def __setattr__(self, key: str, value: Any):
-        """Set the value of a directory property."""
-        self[key] = value
 
     def update(self, **kwargs):
         """Update the metadata of a directory."""

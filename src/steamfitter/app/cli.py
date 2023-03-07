@@ -2,7 +2,7 @@ from pathlib import Path
 import click
 import inflection
 
-from steamfitter.shell_tools import mkdir
+from steamfitter.lib.shell_tools import mkdir
 from steamfitter.app.configuration import (
     Configuration,
 )
@@ -13,6 +13,8 @@ from steamfitter.app.filesystem.structure import ProjectDirectory
 def steamfitter():
     """The Steamfitter project CLI."""
     pass
+
+
 
 
 @steamfitter.command()
@@ -87,7 +89,7 @@ def add_project(project_name: str, description: str, set_default: bool):
             description=description,
         )
     except Exception:
-        ProjectDirectory.remove(config.projects_root, name=project_name)
+        ProjectDirectory.remove(config.projects_root)
         config.rollback_add_project(project_name)
         raise
 
@@ -96,7 +98,7 @@ def add_project(project_name: str, description: str, set_default: bool):
         click.echo(f"Project {project_name} set as the default project.")
 
 
-@remove.command()
+@remove.command(name="project")
 @click.argument("project_name")
 def remove_project(project_name: str):
     """Remove a project from the configuration."""
@@ -107,7 +109,7 @@ def remove_project(project_name: str):
     config = Configuration()
     project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
     config.remove_project(project_name)
-    ProjectDirectory.remove(config.projects_root, name=project_name)
+    ProjectDirectory.remove(config.projects_root)
     click.echo(f"Project {project_name} removed from the configuration.")
 
 
@@ -126,23 +128,79 @@ def remove_project(project_name: str):
     default="",
     help="A description of the data source.",
 )
-def add_source(source_name: str, project_name: str, description: str):
+def add_source(source_name: str, project: str, description: str):
     """Add a data source to a project."""
     if not Configuration.exists():
         click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
         return
 
     config = Configuration()
-    if not (project_name or config.default_project):
+    if not (project or config.default_project):
         click.echo("No project provided and no default project set. Aborting.")
         return
-    elif not project_name:
+    elif not project:
         project_name = config.default_project
 
     project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
     source_name = inflection.dasherize(source_name.replace(' ', '_').lower())
 
-    project_dir = ProjectDirectory(config.projects_root)
+    project_dir = ProjectDirectory(config.projects_root / project_name)
     extracted_data_dir = project_dir.data_directory.extracted_data_directory
     extracted_data_dir.add_source(source_name=source_name, description=description)
     click.echo(f"Source {source_name} added to project {project_name}.")
+
+
+@remove.command(name="source")
+@click.argument("source_name")
+@click.option(
+    "--project",
+    "-P",
+    default=None,
+    help="The project from which the data source should be removed. If not provided, "
+            "the default project will be used.",
+)
+def remove_source(source_name: str, project: str):
+    """Remove a data source from a project."""
+    project_root = get_project_root(project)
+
+    source_name = inflection.dasherize(source_name.replace(' ', '_').lower())
+
+    extracted_data_dir = project_root.data_directory.extracted_data_directory
+    extracted_data_dir.remove_source(source_name=source_name)
+    click.echo(f"Source {source_name} removed from project {project_name}.")
+
+
+def get_project_root(project: str = None) -> ProjectDirectory:
+    config = get_configuration()
+    if not (project or config.default_project):
+        click.echo("No project provided and no default project set. Aborting.")
+        click.Abort()
+    elif not project:
+        project = config.default_project
+
+    project_name = inflection.dasherize(project.replace(' ', '_').lower())
+
+    return ProjectDirectory(config.projects_root / project_name)
+
+
+def get_configuration():
+    if not Configuration.exists():
+        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
+        click.Abort()
+    return Configuration()
+
+
+@steamfitter.command()
+def self_destruct():
+    """Destroy the configuration file and all projects managed by steamfitter."""
+    configuration = get_configuration()
+    click.confirm(
+        "Are you sure you want to destroy all projects and configuration? [y/N]",
+        abort=True,
+    )
+    for project in configuration.projects:
+        click.echo(f"Removing project: {project}")
+        ProjectDirectory.remove(configuration.projects_root / project)
+    click.echo("Removing configuration file.")
+    configuration.remove()
+    click.echo("All projects and configuration removed.")

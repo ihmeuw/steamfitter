@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from steamfitter.shell_tools import mkdir
+from steamfitter.lib.shell_tools import mkdir
 
 
 @pytest.fixture(params=range(0o700, 0o1000, 3))

@@ -1,6 +1,6 @@
 import pytest
 
-from steamfitter.ihme_deps import _lazy_import_callable
+from steamfitter.lib.ihme import _lazy_import_callable
 
 
 def test_lazy_import_callable_pass():

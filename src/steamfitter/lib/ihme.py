@@ -1,4 +1,9 @@
-"""Wrappers for IHME specific dependencies.
+"""
+====
+IHME
+====
+
+Wrappers for libraries internal to the Institute for Health Metrics and Evaluation.
 
 This module explicitly declares and wraps IHME specific code bases
 to prevent CI failures at import time.

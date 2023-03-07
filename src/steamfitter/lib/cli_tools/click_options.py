@@ -1,18 +1,23 @@
 import functools
-import types
 from pathlib import Path
+from typing import Callable, TypeVar, ParamSpec
 
 import click
 
-from steamfitter.cli_tools.metadata import Metadata, get_function_full_argument_mapping
+from steamfitter.lib.filesystem.metadata import RunMetadata
+from steamfitter.lib.cli_tools.monitoring import get_function_full_argument_mapping
 
-add_verbose = click.option(
+
+T = TypeVar('T')
+P = ParamSpec('P')
+
+verbose = click.option(
     "-v",
     "verbose",
     count=True,
-    help="Configure logging verbosity.",
+    help="Log at the debug level.",
 )
-add_with_debugger = click.option(
+with_debugger = click.option(
     "--pdb",
     "with_debugger",
     is_flag=True,
@@ -20,11 +25,12 @@ add_with_debugger = click.option(
 )
 
 
-def add_verbose_and_with_debugger(func: types.FunctionType):
-    """Add both verbose and with debugger options."""
-    func = add_verbose(func)
-    func = add_with_debugger(func)
+def verbose_and_with_debugger(func: Callable[P, T]) -> Callable[P, T]:
+    """Add verbose and with_debugger options."""
+    func = verbose(func)
+    func = with_debugger(func)
     return func
+
 
 with_mark_best = click.option(
     "-b",
@@ -34,10 +40,10 @@ with_mark_best = click.option(
 )
 
 
-def with_output_root(default_output_root: Path):
+def with_output_root(default_output_root: Path) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Adds output root option with a default."""
 
-    def wrapper(entry_point: types.FunctionType):
+    def wrapper(entry_point: Callable[P, T]) -> Callable[P, T]:
         entry_point = click.option(
             "-o",
             "--output-root",
@@ -56,7 +62,7 @@ def with_output_root(default_output_root: Path):
 def add_output_options(default_output_root: Path):
     """Decorator to set CLI command options required when producing outputs."""
 
-    def wrapper(entry_point: types.FunctionType):
+    def wrapper(entry_point: Callable[P, T]) -> Callable[P, T]:
         entry_point = with_output_root(default_output_root)(entry_point)
         entry_point = with_mark_best(entry_point)
         return entry_point
@@ -64,13 +70,14 @@ def add_output_options(default_output_root: Path):
     return wrapper
 
 
-def pass_run_metadata(app_entry_point: types.FunctionType):
-    run_metadata = Metadata(app_entry_point.__name__)
+def pass_run_metadata(app_entry_point: Callable[P, T]) -> Callable[P, T]:
+    run_metadata = RunMetadata(application_name=app_entry_point.__name__)
 
     @functools.wraps(app_entry_point)
     def _wrapped(*args, **kwargs):
         # Record arguments for the run and inject the metadata.
-        run_metadata["tool_name"] = f"{app_entry_point.__module__}:{app_entry_point.__name__}"
+        module = getattr(app_entry_point, "__module__", "")
+        run_metadata["cli_tool_name"] = f"{module}:{app_entry_point.__name__}"
 
         run_metadata["run_arguments"] = get_function_full_argument_mapping(
             app_entry_point, run_metadata, *args, **kwargs
