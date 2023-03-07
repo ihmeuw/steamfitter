@@ -26,13 +26,6 @@ def add_verbose_and_with_debugger(func: types.FunctionType):
     func = add_with_debugger(func)
     return func
 
-
-with_production_tag = click.option(
-    "-p",
-    "--production-tag",
-    type=click.STRING,
-    help="Tags this run as a production run.",
-)
 with_mark_best = click.option(
     "-b",
     "--mark-best",
@@ -65,7 +58,6 @@ def add_output_options(default_output_root: Path):
 
     def wrapper(entry_point: types.FunctionType):
         entry_point = with_output_root(default_output_root)(entry_point)
-        entry_point = with_production_tag(entry_point)
         entry_point = with_mark_best(entry_point)
         return entry_point
 

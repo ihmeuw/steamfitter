@@ -15,6 +15,7 @@ if __name__ == "__main__":
 
     install_requirements = [
         "click",
+        "GitPython",
         "inflection",
         "loguru",
         "numpy",

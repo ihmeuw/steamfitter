@@ -1,13 +1,14 @@
 import datetime
 from pathlib import Path
 
+from git import Repo
 
+from steamfitter.app.filesystem import templates
 from steamfitter.app.filesystem.archive import ARCHIVE_POLICIES
 from steamfitter.app.filesystem.directory import Directory
 
 
 class VersionDirectory(Directory):
-
     NAME_TEMPLATE = "{launch_time}.{run_version:0>2}"
     DESCRIPTION_TEMPLATE = "Version {version} of {versionable_dir_name}."
 
@@ -27,7 +28,6 @@ class VersionDirectory(Directory):
 
 
 class ExtractionSourceDirectory(Directory):
-
     DEFAULT_ARCHIVE_POLICY = ARCHIVE_POLICIES.archive
 
     NAME_TEMPLATE = "{source_count:>06}_{source_name}"
@@ -50,9 +50,17 @@ class ExtractionSourceDirectory(Directory):
             raise ValueError("Must provide a source name.")
         return cls.NAME_TEMPLATE.format(**kwargs)
 
+    @classmethod
+    def add_initial_content(cls, path: Path, **kwargs):
+        source_name = kwargs["source_name"]
+        extraction_template_path = path / "extraction_template.py"
+
+        extraction_template_path.touch(mode=0o664)
+        with open(extraction_template_path, "w") as f:
+            f.write(templates.EXTRACTION.format(source_name=source_name))
+
 
 class ExtractedDataDirectory(Directory):
-
     IS_INITIAL_DIRECTORY = True
 
     NAME_TEMPLATE = "extracted_data"
@@ -60,16 +68,42 @@ class ExtractedDataDirectory(Directory):
 
     DEFAULT_EMPTY_ARGS = {
         ("source_count", lambda: 0),
-        ("sources", lambda: []),
+        ("sources", lambda: {}),
     }
 
     SUBDIRECTORY_TYPES = (
         ExtractionSourceDirectory,
     )
 
+    def add_source(self, source_name: str, description: str):
+        """Add a source to the extracted data directory."""
+
+        source_count = self["source_count"] + 1
+        source_dir = ExtractionSourceDirectory.create(
+            root=self.path,
+            parent=self,
+            source_count=source_count,
+            source_name=source_name,
+            description=description,
+        )
+        self.update(
+            source_count=source_count,
+            sources=self["sources"] + [source_dir.name],
+        )
+
+    @classmethod
+    def add_initial_content(cls, path: Path, **kwargs):
+        repo = Repo.init(path)
+        gitignore_path = path / ".gitignore"
+        gitignore_path.touch(mode=0o664)
+        with open(gitignore_path, "w") as f:
+            f.write(templates.GITIGNORE)
+
+        repo.index.add([str(gitignore_path)])
+        repo.index.commit("Initial commit.")
+
 
 class ProcessedMeasureDirectory(Directory):
-
     DEFAULT_ARCHIVE_POLICY = ARCHIVE_POLICIES.archive
 
     DEFAULT_EMPTY_ARGS = {
@@ -122,6 +156,24 @@ class DataDirectory(Directory):
         ProcessedDataDirectory,
         DataDiagnosticsDirectory,
     )
+
+    @property
+    def extracted_data_directory(self) -> ExtractedDataDirectory:
+        if not hasattr(self, "_extracted_data_directory"):
+            self._extracted_data_directory = self.get_solo_directory_by_class(ExtractedDataDirectory)
+        return self._extracted_data_directory
+
+    @property
+    def processed_data_directory(self) -> ProcessedDataDirectory:
+        if not hasattr(self, "_processed_data_directory"):
+            self._processed_data_directory = self.get_solo_directory_by_class(ProcessedDataDirectory)
+        return self._processed_data_directory
+
+    @property
+    def data_diagnostics_directory(self) -> DataDiagnosticsDirectory:
+        if not hasattr(self, "_data_diagnostics_directory"):
+            self._data_diagnostics_directory = self.get_solo_directory_by_class(DataDiagnosticsDirectory)
+        return self._data_diagnostics_directory
 
 
 class ModelingStageDirectory(Directory):
@@ -178,12 +230,24 @@ class ArchiveDirectory(Directory):
         ModelingDirectory,
     )
 
+    @property
+    def data_directory(self) -> DataDirectory:
+        if not hasattr(self, "_data_directory"):
+            self._data_directory = self.get_solo_directory_by_class(DataDirectory)
+        return self._data_directory
+
+    @property
+    def modeling_directory(self) -> ModelingDirectory:
+        if not hasattr(self, "_modeling_directory"):
+            self._modeling_directory = self.get_solo_directory_by_class(ModelingDirectory)
+        return self._modeling_directory
+
 
 class ProjectDirectory(Directory):
     IS_INITIAL_DIRECTORY = True
 
     SUBDIRECTORY_TYPES = (
-#        ArchiveDirectory,
+        # ArchiveDirectory,
         DataDirectory,
         ModelingDirectory,
     )
@@ -192,4 +256,16 @@ class ProjectDirectory(Directory):
     def add_subdirectory_creation_args(cls, metadata_kwargs, inherited_kwargs):
         inherited_kwargs["project_name"] = metadata_kwargs["name"]
         return inherited_kwargs
+
+    @property
+    def data_directory(self) -> DataDirectory:
+        if not hasattr(self, "_data_directory"):
+            self._data_directory = self.get_solo_directory_by_class(DataDirectory)
+        return self._data_directory
+
+    @property
+    def modeling_directory(self) -> ModelingDirectory:
+        if not hasattr(self, "_modeling_directory"):
+            self._modeling_directory = self.get_solo_directory_by_class(ModelingDirectory)
+        return self._modeling_directory
 

@@ -28,6 +28,16 @@ class Metadata:
         """Return True if the metadata contains the item."""
         return item in self._metadata
 
+    def __setitem__(self, key, value):
+        """Set the value of a metadata property."""
+        self._metadata[key] = value
+        self._dump(self._metadata["root"] / self._FILE_NAME, self._metadata, exist_ok=True)
+
+    def update(self, **kwargs):
+        """Update the metadata of a directory."""
+        self._metadata.update(**kwargs)
+        self._dump(self._metadata["root"] / self._FILE_NAME, self._metadata, exist_ok=True)
+
     ################################
     # First time class generation #
     ################################
@@ -107,6 +117,6 @@ class Metadata:
             If the metadata file already exists and `exist_ok` is False.
 
         """
-        path.touch(mode=0o644, exist_ok=exist_ok)
+        path.touch(mode=0o664, exist_ok=exist_ok)
         with path.open("w") as f:
             yaml.dump(metadata, f)

@@ -39,7 +39,23 @@ def configure(projects_root: str):
         click.echo(f"Configuration file written to {config.path}")
 
 
-@steamfitter.command()
+@steamfitter.group()
+def add():
+    """Adds new projects, data sources, modeling stages, etc."""
+    pass
+
+
+@steamfitter.group()
+def remove():
+    """Removes projects, data sources, modeling stages, etc."""
+    pass
+
+
+##########################
+# Project level commands #
+##########################
+
+@add.command(name="project")
 @click.argument("project_name")
 @click.option(
     "--description",
@@ -54,7 +70,7 @@ def configure(projects_root: str):
     default=False,
     help="Set this project as the default project.",
 )
-def add(project_name: str, description: str, set_default: bool):
+def add_project(project_name: str, description: str, set_default: bool):
     """Add a project to the configuration."""
     if not Configuration.exists():
         click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
@@ -80,9 +96,9 @@ def add(project_name: str, description: str, set_default: bool):
         click.echo(f"Project {project_name} set as the default project.")
 
 
-@steamfitter.command()
+@remove.command()
 @click.argument("project_name")
-def remove(project_name: str):
+def remove_project(project_name: str):
     """Remove a project from the configuration."""
     if not Configuration.exists():
         click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
@@ -93,3 +109,40 @@ def remove(project_name: str):
     config.remove_project(project_name)
     ProjectDirectory.remove(config.projects_root, name=project_name)
     click.echo(f"Project {project_name} removed from the configuration.")
+
+
+@add.command(name="source")
+@click.argument("source_name")
+@click.option(
+    "--project",
+    "-P",
+    default=None,
+    help="The project to which the data source should be added. If not provided, "
+         "the default project will be used.",
+)
+@click.option(
+    "--description",
+    "-m",
+    default="",
+    help="A description of the data source.",
+)
+def add_source(source_name: str, project_name: str, description: str):
+    """Add a data source to a project."""
+    if not Configuration.exists():
+        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
+        return
+
+    config = Configuration()
+    if not (project_name or config.default_project):
+        click.echo("No project provided and no default project set. Aborting.")
+        return
+    elif not project_name:
+        project_name = config.default_project
+
+    project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
+    source_name = inflection.dasherize(source_name.replace(' ', '_').lower())
+
+    project_dir = ProjectDirectory(config.projects_root)
+    extracted_data_dir = project_dir.data_directory.extracted_data_directory
+    extracted_data_dir.add_source(source_name=source_name, description=description)
+    click.echo(f"Source {source_name} added to project {project_name}.")

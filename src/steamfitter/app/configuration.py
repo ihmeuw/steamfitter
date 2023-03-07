@@ -22,6 +22,14 @@ class Configuration:
     def projects_root(self) -> Path:
         return Path(self._config["projects_root"])
 
+    @property
+    def projects(self) -> list:
+        return self._config["projects"].copy()
+
+    @property
+    def default_project(self) -> str:
+        return self._config["default_project"]
+
     @classmethod
     def create(cls, projects_root: str) -> "Configuration":
         """Create a new configuration on disk and return this object representation of it."""
