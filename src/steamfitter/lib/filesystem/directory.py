@@ -40,7 +40,7 @@ class Directory:
 
     def __init__(self, path: Path, parent: Directory = None):
         self._parent = parent
-        self._metadata = Metadata(path)
+        self._metadata = Metadata.from_directory(path)
         self._subdirectories = self.collect_subdirectories(path)
 
     def collect_subdirectories(self, path: Path) -> Dict[str, List[Directory]]:
@@ -49,7 +49,7 @@ class Directory:
         for subdirectory in path.iterdir():
             if subdirectory.is_dir():
                 try:
-                    subdirectory_metadata = Metadata(subdirectory)
+                    subdirectory_metadata = Metadata.from_directory(subdirectory)
                     subdirectory_type = subdirectory_metadata["directory_type"]
                     subdirectory_import_path = subdirectory_metadata["directory_class"]
                     module_path, _, class_name = subdirectory_import_path.rpartition(".")
@@ -133,17 +133,15 @@ class Directory:
         return cls(path)
 
     @classmethod
-    def remove(cls, root: Path, safe=True, **kwargs):
+    def remove(cls, path: Path, safe=True, **kwargs):
         """Rollback the creation of a directory."""
         if safe:
-            instance = cls(root, **kwargs)
+            instance = cls(path, **kwargs)
             managed = instance["directory_type"] == cls.make_directory_type()
             if not managed:
                 raise SteamfitterDirectoryError(
-                    f"Cannot remove {str(root)} because it is not managed by steamfitter."
+                    f"Cannot remove {str(path)} because it is not managed by steamfitter."
                 )
-        name = cls.make_name(root=root, **kwargs)
-        path = root / name
         shutil.rmtree(path, ignore_errors=True)
 
     @classmethod

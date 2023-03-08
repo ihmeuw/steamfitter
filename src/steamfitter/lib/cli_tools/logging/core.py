@@ -13,7 +13,6 @@ from pathlib import Path
 from loguru import logger
 
 from steamfitter.lib.cli_tools.logging.jobmon import (
-    JOBMON_LOGGING_LEVEL,
     intercept_jobmon_logs,
 )
 
@@ -26,16 +25,7 @@ LOG_MESSAGING_FORMAT = (
 
 
 def configure_logging_to_terminal(verbosity: int) -> None:
-    """Configure logging to print to the sys.stdout.
-
-    Parameters
-    ----------
-    verbosity
-        The verbosity level of the logging. -1 logs at the WARNING level, 0 logs
-        at the INFO level, and 1 logs at the DEBUG level and 2 or will log
-        external library messages.
-
-    """
+    """Configure logging to print to the sys.stdout."""
     _clear_default_configuration()
     _add_logging_sink(
         sink=sys.stdout,
@@ -106,14 +96,12 @@ def _add_logging_sink(
 
 
 def _get_log_level(verbosity: int):
-    if verbosity == -1:
+    if verbosity == 0:
         return "WARNING"
-    elif verbosity == 0:
-        return "INFO"
     elif verbosity == 1:
-        return "DEBUG"
+        return "INFO"
     elif verbosity >= 2:
-        return JOBMON_LOGGING_LEVEL
+        return "DEBUG"
     else:
         raise NotImplementedError
 

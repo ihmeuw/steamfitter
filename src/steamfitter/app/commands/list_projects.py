@@ -1,9 +1,9 @@
 """
-======
-Status
-======
+=============
+List Projects
+=============
 
-Prints the status of the steamfitter configuration.
+List all projects managed by steamfitter.
 
 """
 import click
@@ -19,15 +19,17 @@ from steamfitter.lib.cli_tools import (
 
 def main():
     config = get_configuration()
-
-    click.echo(f"Projects root: {config.projects_root}")
-    click.echo(f"Default project: {config.default_project}")
-    click.echo(f"Projects: {', '.join(config.projects)}")
+    if config.projects:
+        click.echo("Projects")
+        click.echo("========")
+        click.echo("\n".join(config.projects))
+    else:
+        click.echo("No projects found.")
 
 
 @click.command()
 @click_options.verbose_and_with_debugger
-def status(
+def list_projects(
     verbose: int,
     with_debugger: bool,
 ):

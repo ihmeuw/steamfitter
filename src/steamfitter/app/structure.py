@@ -3,9 +3,9 @@ from pathlib import Path
 
 from git import Repo
 
-from steamfitter.app.filesystem import templates
-from steamfitter.app.filesystem.archive import ARCHIVE_POLICIES
-from steamfitter.app.filesystem.directory import Directory
+from steamfitter.lib.filesystem import templates
+from steamfitter.lib.filesystem.archive import ARCHIVE_POLICIES
+from steamfitter.lib.filesystem.directory import Directory
 
 
 class VersionDirectory(Directory):
@@ -30,7 +30,7 @@ class VersionDirectory(Directory):
 class ExtractionSourceDirectory(Directory):
     DEFAULT_ARCHIVE_POLICY = ARCHIVE_POLICIES.archive
 
-    NAME_TEMPLATE = "{source_count:>06}_{source_name}"
+    NAME_TEMPLATE = "{source_count:>06}-{source_name}"
 
     DEFAULT_EMPTY_ARGS = {
         ("last_updated", lambda: ""),
@@ -68,7 +68,7 @@ class ExtractedDataDirectory(Directory):
 
     DEFAULT_EMPTY_ARGS = {
         ("source_count", lambda: 0),
-        ("sources", lambda: {}),
+        ("sources", lambda: []),
     }
 
     SUBDIRECTORY_TYPES = (

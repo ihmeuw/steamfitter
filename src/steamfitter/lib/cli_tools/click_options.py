@@ -15,7 +15,7 @@ verbose = click.option(
     "-v",
     "verbose",
     count=True,
-    help="Log at the debug level.",
+    help="Logging level.",
 )
 with_debugger = click.option(
     "--pdb",

@@ -1,45 +1,30 @@
-from pathlib import Path
-import click
-import inflection
+"""
+===============
+Steamfitter CLI
+===============
 
-from steamfitter.lib.shell_tools import mkdir
-from steamfitter.app.configuration import (
-    Configuration,
-)
-from steamfitter.app.filesystem.structure import ProjectDirectory
+This module contains the CLI for steamfitter.
+
+"""
+import click
+
+from steamfitter.app import commands
 
 
 @click.group()
 def steamfitter():
-    """The Steamfitter project CLI."""
+    """A CLI for managing data science projects."""
     pass
 
 
+steamfitter.add_command(commands.status, name='status')
+steamfitter.add_command(commands.configure, name='configure')
+steamfitter.add_command(commands.self_destruct, name='self_destruct')
 
 
-@steamfitter.command()
-@click.argument("projects_root")
-def configure(projects_root: str):
-    """First time configuration for steamfitter.
-
-    This will create a configuration file in the user's home directory and build a root
-    directory for projects managed by steamfitter if one does not exist already.
-
-    Usage:
-
-         steamfitter configure /path/to/projects/root
-
-    """
-    if Configuration.exists():
-        click.echo("Configuration file already exists. Aborting.")
-    else:
-        projects_root = Path(projects_root).expanduser().resolve()
-        if not projects_root.exists():
-            click.echo(f"Projects root {projects_root} does not exist. Creating it.")
-            mkdir(projects_root, parents=True)
-        config = Configuration.create(str(projects_root))
-        click.echo(f"Configuration file written to {config.path}")
-
+############################
+# Function first interface #
+############################
 
 @steamfitter.group()
 def add():
@@ -47,160 +32,51 @@ def add():
     pass
 
 
+add.add_command(commands.add_project, name='project')
+add.add_command(commands.add_source, name='source')
+
+
 @steamfitter.group()
 def remove():
-    """Removes projects, data sources, modeling stages, etc."""
+    """Removes projects, data source, modeling stages, etc."""
     pass
 
 
+remove.add_command(commands.remove_project, name='project')
+remove.add_command(commands.remove_source, name='source')
+
+
+@steamfitter.group()
+def list():
+    """Lists projects, data sources, modeling stages, etc."""
+    pass
+
+
+list.add_command(commands.list_projects, name='project')
+list.add_command(commands.list_sources, name='source')
+
+
 ##########################
-# Project level commands #
+# Entity first interface #
 ##########################
 
-@add.command(name="project")
-@click.argument("project_name")
-@click.option(
-    "--description",
-    "-m",
-    default="",
-    help="A description of the project.",
-)
-@click.option(
-    "--set-default",
-    "-d",
-    is_flag=True,
-    default=False,
-    help="Set this project as the default project.",
-)
-def add_project(project_name: str, description: str, set_default: bool):
-    """Add a project to the configuration."""
-    if not Configuration.exists():
-        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
-        return
-
-    config = Configuration()
-    project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
-    config.add_project(project_name, set_default=set_default)
-
-    try:
-        ProjectDirectory.create(
-            config.projects_root,
-            name=project_name,
-            description=description,
-        )
-    except Exception:
-        ProjectDirectory.remove(config.projects_root)
-        config.rollback_add_project(project_name)
-        raise
-
-    click.echo(f"Project {project_name} added to the configuration.")
-    if set_default:
-        click.echo(f"Project {project_name} set as the default project.")
+@steamfitter.group()
+def project():
+    """Adds, removes, or lists steamfitter projects."""
+    pass
 
 
-@remove.command(name="project")
-@click.argument("project_name")
-def remove_project(project_name: str):
-    """Remove a project from the configuration."""
-    if not Configuration.exists():
-        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
-        return
-
-    config = Configuration()
-    project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
-    config.remove_project(project_name)
-    ProjectDirectory.remove(config.projects_root)
-    click.echo(f"Project {project_name} removed from the configuration.")
+project.add_command(commands.add_project, name="add")
+project.add_command(commands.remove_project, name="remove")
+project.add_command(commands.list_projects, name="list")
 
 
-@add.command(name="source")
-@click.argument("source_name")
-@click.option(
-    "--project",
-    "-P",
-    default=None,
-    help="The project to which the data source should be added. If not provided, "
-         "the default project will be used.",
-)
-@click.option(
-    "--description",
-    "-m",
-    default="",
-    help="A description of the data source.",
-)
-def add_source(source_name: str, project: str, description: str):
-    """Add a data source to a project."""
-    if not Configuration.exists():
-        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
-        return
-
-    config = Configuration()
-    if not (project or config.default_project):
-        click.echo("No project provided and no default project set. Aborting.")
-        return
-    elif not project:
-        project_name = config.default_project
-
-    project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
-    source_name = inflection.dasherize(source_name.replace(' ', '_').lower())
-
-    project_dir = ProjectDirectory(config.projects_root / project_name)
-    extracted_data_dir = project_dir.data_directory.extracted_data_directory
-    extracted_data_dir.add_source(source_name=source_name, description=description)
-    click.echo(f"Source {source_name} added to project {project_name}.")
+@steamfitter.group()
+def source():
+    """Adds, removes, or lists steamfitter data sources."""
+    pass
 
 
-@remove.command(name="source")
-@click.argument("source_name")
-@click.option(
-    "--project",
-    "-P",
-    default=None,
-    help="The project from which the data source should be removed. If not provided, "
-            "the default project will be used.",
-)
-def remove_source(source_name: str, project: str):
-    """Remove a data source from a project."""
-    project_root = get_project_root(project)
-
-    source_name = inflection.dasherize(source_name.replace(' ', '_').lower())
-
-    extracted_data_dir = project_root.data_directory.extracted_data_directory
-    extracted_data_dir.remove_source(source_name=source_name)
-    click.echo(f"Source {source_name} removed from project {project_name}.")
-
-
-def get_project_root(project: str = None) -> ProjectDirectory:
-    config = get_configuration()
-    if not (project or config.default_project):
-        click.echo("No project provided and no default project set. Aborting.")
-        click.Abort()
-    elif not project:
-        project = config.default_project
-
-    project_name = inflection.dasherize(project.replace(' ', '_').lower())
-
-    return ProjectDirectory(config.projects_root / project_name)
-
-
-def get_configuration():
-    if not Configuration.exists():
-        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
-        click.Abort()
-    return Configuration()
-
-
-@steamfitter.command()
-def self_destruct():
-    """Destroy the configuration file and all projects managed by steamfitter."""
-    configuration = get_configuration()
-    click.confirm(
-        "Are you sure you want to destroy all projects and configuration? [y/N]",
-        abort=True,
-    )
-    for project in configuration.projects:
-        click.echo(f"Removing project: {project}")
-        ProjectDirectory.remove(configuration.projects_root / project)
-    click.echo("Removing configuration file.")
-    configuration.remove()
-    click.echo("All projects and configuration removed.")
+source.add_command(commands.add_source, name="add")
+source.add_command(commands.remove_source, name="remove")
+source.add_command(commands.list_sources, name="list")

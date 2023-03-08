@@ -9,7 +9,9 @@ This module contains functions for monitoring the status of a running CLI applic
 from bdb import BdbQuit
 import functools
 import pdb
-from typing import Callable, Dict, ParamSpec, Tuple, Type, TypeVar
+from typing import Callable, Dict, ParamSpec, Tuple, TypeVar
+
+import click
 
 from steamfitter.lib.cli_tools.logging import logger
 from steamfitter.lib.filesystem.metadata import RunMetadata
@@ -21,7 +23,7 @@ P = ParamSpec('P')
 
 def handle_exceptions(
     application_main: Callable[P, T],
-    logger_: Type[logger],
+    logger_: type(logger),
     with_debugger: bool,
 ) -> Callable[P, T]:
     """Wraps a function so that it drops a user into a debugger if it raises an error.
@@ -51,7 +53,7 @@ def handle_exceptions(
     def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         try:
             return application_main(*args, **kwargs)
-        except (BdbQuit, KeyboardInterrupt):
+        except (BdbQuit, KeyboardInterrupt, click.Abort):
             raise
         except Exception as e:
             msg = f"Uncaught exception {e}"
@@ -66,7 +68,7 @@ def handle_exceptions(
 
 def monitor_application(
     application_main: Callable[P, T],
-    logger_: Type[logger],
+    logger_: type(logger),
     with_debugger: bool,
     metadata: RunMetadata = None,
 ) -> Callable:
@@ -116,7 +118,7 @@ def monitor_application(
                 "exception_type": str(type(e)),
                 "exception_value": str(e),
             }
-            if not isinstance(e, (BdbQuit, KeyboardInterrupt)) and with_debugger:
+            if not isinstance(e, (BdbQuit, KeyboardInterrupt, click.Abort)) and with_debugger:
                 msg = f"Uncaught exception {e}"
                 logger_.exception(msg)
                 pdb.post_mortem()

@@ -1,9 +1,18 @@
+"""
+=============
+Configuration
+=============
+
+This module contains the :class:`Configuration` class, which is used to represent
+the user configuration of steamfitter. The configuration is stored in a YAML file in the
+user's home directory.
+
+"""
 from pathlib import Path
 import shutil
 
-import yaml
-
 from steamfitter.lib.exceptions import SteamfitterException
+from steamfitter.lib.io import yaml as io
 
 
 class SteamfitterConfigurationError(SteamfitterException):
@@ -16,7 +25,7 @@ class Configuration:
     _path = Path.home() / ".config" / "steamfitter" / "steamfitter.conf"
 
     def __init__(self):
-        self._config = self._load()
+        self._config = io.load(self._path)
         self._previous_default_project = None
 
     @property
@@ -44,7 +53,8 @@ class Configuration:
             "projects": [],
             "default_project": "",
         }
-        cls._dump(config)
+        cls._path.parent.mkdir(parents=True, exist_ok=True)
+        io.dump(cls._path, config, exist_ok=True)
         return cls()
 
     @classmethod
@@ -60,7 +70,7 @@ class Configuration:
         """Add a project to the configuration."""
         if project_name in self._config["projects"]:
             raise SteamfitterConfigurationError(
-                f"Project {project_name} already exists in the configuration."
+                f"Project {project_name} already exists."
             )
 
         self._config["projects"].append(project_name)
@@ -68,7 +78,7 @@ class Configuration:
             self._previous_default_project = self._config["default_project"]
             self._config["default_project"] = project_name
 
-        self._dump(self._config)
+        io.dump(self._path, self._config, exist_ok=True)
 
     def remove_project(self, project_name: str, new_default: str = "") -> None:
         """Remove a project from the configuration."""
@@ -81,23 +91,8 @@ class Configuration:
         if self._config["default_project"] == project_name:
             self._config["default_project"] = new_default
 
-        self._dump(self._config)
+        io.dump(self._path, self._config, exist_ok=True)
 
     def rollback_add_project(self, project_name: str) -> None:
         """Rollback the addition of a project to the configuration."""
         self.remove_project(project_name, new_default=self._previous_default_project)
-
-    @classmethod
-    def _load(cls) -> dict:
-        if not cls._path.exists():
-            raise SteamfitterConfigurationError(f"Configuration file {cls._path} does not exist.")
-        with cls._path.open() as f:
-            config = yaml.full_load(f)
-        return config
-
-    @classmethod
-    def _dump(cls, config) -> None:
-        cls._path.parent.mkdir(parents=True, exist_ok=True)
-        with cls._path.open("w") as f:
-            yaml.dump(config, f)
-
