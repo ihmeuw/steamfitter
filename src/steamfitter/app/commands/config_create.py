@@ -1,7 +1,7 @@
 """
-=========
-Configure
-=========
+====================
+Create Configuration
+====================
 
 Configure steamfitter for the first time.
 
@@ -34,14 +34,14 @@ def main(projects_root: str):
 
 
 @click.command()
-@options.projects_root_arg
+@options.projects_root_required
 @click_options.verbose_and_with_debugger
-def configure(
+def create_config(
     projects_root: str,
     verbose: int,
     with_debugger: bool,
 ):
-    """First time configuration for steamfitter.
+    """Create the user configuration for steamfitter.
 
     This will create a configuration file in the user's home directory and build a root
     directory for projects managed by steamfitter if one does not exist already.

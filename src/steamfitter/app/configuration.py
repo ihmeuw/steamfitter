@@ -32,6 +32,10 @@ class Configuration:
     def projects_root(self) -> Path:
         return Path(self._config["projects_root"])
 
+    @projects_root.setter
+    def projects_root(self, value: str):
+        self._config["projects_root"] = value
+
     @property
     def projects(self) -> list:
         return self._config["projects"].copy()
@@ -39,6 +43,11 @@ class Configuration:
     @property
     def default_project(self) -> str:
         return self._config["default_project"]
+
+    @default_project.setter
+    def default_project(self, value: str):
+        self._previous_default_project = self._config["default_project"]
+        self._config["default_project"] = value
 
     def remove(self):
         """Remove the configuration file from disk."""
@@ -75,8 +84,7 @@ class Configuration:
 
         self._config["projects"].append(project_name)
         if set_default:
-            self._previous_default_project = self._config["default_project"]
-            self._config["default_project"] = project_name
+            self.default_project = project_name
 
         io.dump(self._path, self._config, exist_ok=True)
 
@@ -96,3 +104,11 @@ class Configuration:
     def rollback_add_project(self, project_name: str) -> None:
         """Rollback the addition of a project to the configuration."""
         self.remove_project(project_name, new_default=self._previous_default_project)
+
+    def persist(self):
+        """Save the configuration to disk."""
+        io.dump(self._path, self._config, exist_ok=True)
+
+    def __repr__(self):
+        config_list = [f"{k}={v}" for k, v in self._config.items()]
+        return f"Configuration(', '.join({config_list}))"

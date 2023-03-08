@@ -83,9 +83,9 @@ class Directory:
         """Set the value of a directory property."""
         self._metadata[key] = value
 
-    def update(self, **kwargs):
+    def update(self, new_metadata: Dict[str, Any]):
         """Update the metadata of a directory."""
-        self._metadata.update(**kwargs)
+        self._metadata.update(new_metadata)
 
     ##############################
     # On-disk directory creation #

@@ -17,8 +17,6 @@ def steamfitter():
     pass
 
 
-steamfitter.add_command(commands.status, name='status')
-steamfitter.add_command(commands.configure, name='configure')
 steamfitter.add_command(commands.self_destruct, name='self_destruct')
 
 
@@ -59,6 +57,17 @@ list.add_command(commands.list_sources, name='source')
 ##########################
 # Entity first interface #
 ##########################
+
+@steamfitter.group()
+def config():
+    """Creates, updates, or lists steamfitter configuration."""
+    pass
+
+
+config.add_command(commands.create_config, name="create")
+config.add_command(commands.update_config, name="update")
+config.add_command(commands.list_config, name="list")
+
 
 @steamfitter.group()
 def project():

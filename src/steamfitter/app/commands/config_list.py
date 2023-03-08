@@ -1,7 +1,7 @@
 """
-======
-Status
-======
+==================
+List Configuration
+==================
 
 Prints the status of the steamfitter configuration.
 
@@ -27,7 +27,7 @@ def main():
 
 @click.command()
 @click_options.verbose_and_with_debugger
-def status(
+def list_config(
     verbose: int,
     with_debugger: bool,
 ):

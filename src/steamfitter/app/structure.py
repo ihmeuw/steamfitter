@@ -86,10 +86,11 @@ class ExtractedDataDirectory(Directory):
             source_name=source_name,
             description=description,
         )
-        self.update(
-            source_count=source_count,
-            sources=self["sources"] + [source_dir["name"]],
-        )
+        self.update({
+            "source_count": source_count,
+            "sources": self["sources"] + [source_dir["name"]],
+        })
+        self._metadata.persist()
 
 
     @classmethod

@@ -34,7 +34,7 @@ def main(source_name: str, project_name: str):
 
 
 @click.command
-@options.source_name_arg
+@options.source_name
 @options.project_name
 @click_options.verbose_and_with_debugger
 def remove_source(

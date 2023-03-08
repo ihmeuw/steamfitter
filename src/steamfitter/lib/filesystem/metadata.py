@@ -85,7 +85,7 @@ class Metadata:
 
     def persist(self):
         """Persist the metadata to disk."""
-        io.dump(self._metadata["root"] / self._FILE_NAME, self._metadata, exist_ok=True)
+        io.dump(Path(self._metadata["root"]) / self._FILE_NAME, self._metadata, exist_ok=True)
 
     #######################
     # Metadata generation #

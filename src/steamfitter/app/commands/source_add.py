@@ -35,7 +35,7 @@ def main(source_name: str, project_name: Union[str, None], description: str):
 
 
 @click.command
-@options.source_name_arg
+@options.source_name
 @options.project_name
 @options.description
 @click_options.verbose_and_with_debugger

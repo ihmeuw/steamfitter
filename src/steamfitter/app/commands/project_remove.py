@@ -36,7 +36,7 @@ def main(project_name: str):
 
 
 @click.command
-@options.project_name_arg
+@options.project_name_required
 @click_options.verbose_and_with_debugger
 def remove_project(
     project_name: str,
