@@ -10,6 +10,7 @@ from pathlib import Path
 import click
 
 from steamfitter.app.configuration import Configuration
+from steamfitter.app.structure import ProjectDirectory
 from steamfitter.app import options
 from steamfitter.lib.cli_tools import (
     logger,
@@ -17,6 +18,7 @@ from steamfitter.lib.cli_tools import (
     click_options,
     monitoring,
 )
+from steamfitter.lib.filesystem.directory import SteamfitterDirectoryError
 from steamfitter.lib.shell_tools import mkdir
 
 
@@ -26,10 +28,18 @@ def main(projects_root: str):
         raise click.Abort()
 
     projects_root = Path(projects_root).expanduser().resolve()
+    projects = []
     if not projects_root.exists():
         click.echo(f"Projects root {projects_root} does not exist. Creating it.")
         mkdir(projects_root, parents=True)
+    else:
+        for child in projects_root.iterdir():
+            if child.is_dir() and ProjectDirectory.is_directory_type(child):
+                projects.append(child.name)
+
     config = Configuration.create(str(projects_root))
+    config.projects = projects
+    config.persist()
     click.echo(f"Configuration file written to {config.path}")
 
 

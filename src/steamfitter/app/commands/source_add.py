@@ -9,11 +9,13 @@ Adds a new source to a steamfitter project.
 from typing import Union
 
 import click
+from git import Repo
 
 from steamfitter.app.utilities import (
     clean_string,
     get_project_directory,
 )
+from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.cli_tools import (
     logger,
     configure_logging_to_terminal,
@@ -29,8 +31,14 @@ def main(source_name: str, project_name: Union[str, None], description: str):
     """Add a data source to a project."""
     source_name = clean_string(source_name)
     project_directory = get_project_directory(project_name)
+    project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
-    extracted_data_directory.add_source(source_name=source_name, description=description)
+    try:
+        extracted_data_directory.add_source(source_name=source_name, description=description)
+    except SteamfitterException as e:
+        click.echo(str(e))
+        raise click.Abort()
+
     click.echo(f"Source {source_name} added to project {project_name}.")
 
 

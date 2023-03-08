@@ -39,9 +39,23 @@ class Directory:
     SUBDIRECTORY_TYPES: Tuple[Type[Directory], ...] = ()
 
     def __init__(self, path: Path, parent: Directory = None):
+        if not self.is_directory_type(path):
+            raise SteamfitterDirectoryError(
+                f"Directory {path} is not of type {self.make_directory_type()}."
+            )
+
         self._parent = parent
         self._metadata = Metadata.from_directory(path)
         self._subdirectories = self.collect_subdirectories(path)
+
+    @classmethod
+    def is_directory_type(cls, path: Path):
+        """Return True if the given path is a directory of the given type."""
+        try:
+            metadata = Metadata.from_directory(path)
+            return metadata["directory_type"] == cls.make_directory_type()
+        except FileNotFoundError:
+            return False
 
     def collect_subdirectories(self, path: Path) -> Dict[str, List[Directory]]:
         """Collect all subdirectories of this directory."""
@@ -186,3 +200,4 @@ class Directory:
     def add_initial_content(cls, path: Path, **kwargs):
         """Add initial content to a directory."""
         pass
+

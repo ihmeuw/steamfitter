@@ -35,6 +35,7 @@ def main(projects_root: Union[str, None], default_project_name: Union[str, None]
             click.echo(f"Projects root {projects_root} does not exist. Creating it.")
             mkdir(projects_root, parents=True)
         config.projects_root = str(projects_root)
+        config.default_project = None
         click.echo(f"Projects root updated to {config.projects_root}.")
 
     if default_project_name is not None:
@@ -42,7 +43,6 @@ def main(projects_root: Union[str, None], default_project_name: Union[str, None]
         click.echo(f"Default project updated to {config.default_project}.")
 
     config.persist()
-    click.echo(f"Configuration file updated and written to {config.path}")
 
 
 @click.command()

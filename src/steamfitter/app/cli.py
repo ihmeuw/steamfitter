@@ -17,7 +17,7 @@ def steamfitter():
     pass
 
 
-steamfitter.add_command(commands.self_destruct, name='self_destruct')
+steamfitter.add_command(commands.self_destruct, name='self-destruct')
 
 
 ############################
@@ -52,6 +52,7 @@ def list():
 
 list.add_command(commands.list_projects, name='project')
 list.add_command(commands.list_sources, name='source')
+list.add_command(commands.list_config, name='config')
 
 
 ##########################

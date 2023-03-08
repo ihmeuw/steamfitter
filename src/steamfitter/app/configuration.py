@@ -33,21 +33,25 @@ class Configuration:
         return Path(self._config["projects_root"])
 
     @projects_root.setter
-    def projects_root(self, value: str):
-        self._config["projects_root"] = value
+    def projects_root(self, projects_root: str):
+        self._config["projects_root"] = projects_root
 
     @property
-    def projects(self) -> list:
+    def projects(self) -> dict:
         return self._config["projects"].copy()
+
+    @projects.setter
+    def projects(self, projects: list):
+        self._config["projects"] = {i: project for i, project in enumerate(projects)}
 
     @property
     def default_project(self) -> str:
         return self._config["default_project"]
 
     @default_project.setter
-    def default_project(self, value: str):
+    def default_project(self, default_project: str):
         self._previous_default_project = self._config["default_project"]
-        self._config["default_project"] = value
+        self._config["default_project"] = default_project
 
     def remove(self):
         """Remove the configuration file from disk."""
@@ -59,7 +63,7 @@ class Configuration:
 
         config = {
             "projects_root": projects_root,
-            "projects": [],
+            "projects": {},
             "default_project": "",
         }
         cls._path.parent.mkdir(parents=True, exist_ok=True)
@@ -77,12 +81,13 @@ class Configuration:
 
     def add_project(self, project_name: str, set_default: bool) -> None:
         """Add a project to the configuration."""
-        if project_name in self._config["projects"]:
+        if project_name in self._config["projects"].values():
             raise SteamfitterConfigurationError(
                 f"Project {project_name} already exists."
             )
 
-        self._config["projects"].append(project_name)
+        proj_number = max(self._config["projects"]) if self._config["projects"] else 0
+        self._config["projects"][proj_number] = project_name
         if set_default:
             self.default_project = project_name
 
@@ -90,20 +95,17 @@ class Configuration:
 
     def remove_project(self, project_name: str, new_default: str = "") -> None:
         """Remove a project from the configuration."""
-        if project_name not in self._config["projects"]:
+        if project_name not in self._config["projects"].values():
             raise SteamfitterConfigurationError(
                 f"Project {project_name} does not exist in the configuration."
             )
+        project_number = {v: k for k, v in self._config["projects"].items()}[project_name]
 
-        self._config["projects"].remove(project_name)
+        self._config["projects"].remove(project_number)
         if self._config["default_project"] == project_name:
             self._config["default_project"] = new_default
 
         io.dump(self._path, self._config, exist_ok=True)
-
-    def rollback_add_project(self, project_name: str) -> None:
-        """Rollback the addition of a project to the configuration."""
-        self.remove_project(project_name, new_default=self._previous_default_project)
 
     def persist(self):
         """Save the configuration to disk."""

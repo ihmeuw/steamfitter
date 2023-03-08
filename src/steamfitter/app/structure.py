@@ -3,6 +3,7 @@ from pathlib import Path
 
 from git import Repo
 
+from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem import templates
 from steamfitter.lib.filesystem.archive import ARCHIVE_POLICIES
 from steamfitter.lib.filesystem.directory import Directory
@@ -68,7 +69,8 @@ class ExtractedDataDirectory(Directory):
 
     DEFAULT_EMPTY_ARGS = {
         ("source_count", lambda: 0),
-        ("sources", lambda: []),
+        ("sources", lambda: {}),
+        ("columns", lambda: {}),
     }
 
     SUBDIRECTORY_TYPES = (
@@ -77,9 +79,11 @@ class ExtractedDataDirectory(Directory):
 
     def add_source(self, source_name: str, description: str):
         """Add a source to the extracted data directory."""
+        if source_name in self["sources"].values():
+            raise SteamfitterException(f"Source {source_name} already exists.")
 
         source_count = self["source_count"] + 1
-        source_dir = ExtractionSourceDirectory.create(
+        ExtractionSourceDirectory.create(
             root=self.path,
             parent=self,
             source_count=source_count,
@@ -88,10 +92,13 @@ class ExtractedDataDirectory(Directory):
         )
         self.update({
             "source_count": source_count,
-            "sources": self["sources"] + [source_dir["name"]],
+            "sources": {**self["sources"], source_count: source_name},
         })
         self._metadata.persist()
 
+        repo = Repo(self.path)
+        repo.git.add(".")
+        repo.index.commit(f"Added source {source_name}.")
 
     @classmethod
     def add_initial_content(cls, path: Path, **kwargs):
@@ -101,7 +108,7 @@ class ExtractedDataDirectory(Directory):
         with open(gitignore_path, "w") as f:
             f.write(templates.GITIGNORE)
 
-        repo.index.add([str(gitignore_path)])
+        repo.git.add(".")
         repo.index.commit("Initial commit.")
 
 
@@ -270,4 +277,3 @@ class ProjectDirectory(Directory):
         if not hasattr(self, "_modeling_directory"):
             self._modeling_directory = self.get_solo_directory_by_class(ModelingDirectory)
         return self._modeling_directory
-

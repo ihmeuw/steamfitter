@@ -26,7 +26,8 @@ def main(project_name: str):
     if sources:
         click.echo("Sources")
         click.echo("=======")
-        click.echo("\n".join(sources))
+        for source_number, source in sources.items():
+            click.echo(f"{source_number:<8}: {source}")
     else:
         click.echo("No sources found.")
 

@@ -70,5 +70,6 @@ if __name__ == "__main__":
         entry_points="""
             [console_scripts]
             steamfitter=steamfitter.app.cli:steamfitter
+            sf=steamfitter.app.cli:steamfitter
         """,
     )

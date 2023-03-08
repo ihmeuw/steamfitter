@@ -26,7 +26,7 @@ def main():
         "Are you sure you want to destroy all projects and configuration?",
         abort=True,
     )
-    for project in configuration.projects:
+    for project in configuration.projects.values():
         click.echo(f"Removing project: {project}")
         ProjectDirectory.remove(configuration.projects_root / project)
     click.echo("Removing configuration file.")
