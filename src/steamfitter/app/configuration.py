@@ -96,13 +96,11 @@ class Configuration:
 
     def remove_project(self, project_name: str, new_default: str = "") -> None:
         """Remove a project from the configuration."""
-        if project_name not in self._config["projects"].values():
+        if project_name not in self._config["projects"]:
             raise SteamfitterConfigurationError(
                 f"Project {project_name} does not exist in the configuration."
             )
-        project_number = {v: k for k, v in self._config["projects"].items()}[project_name]
-
-        self._config["projects"].remove(project_number)
+        self._config["projects"].remove(project_name)
         if self._config["default_project"] == project_name:
             self._config["default_project"] = new_default
 

@@ -1,5 +1,3 @@
-import textwrap
-
 from steamfitter.app import commands
 from steamfitter.lib.testing import invoke_cli
 
