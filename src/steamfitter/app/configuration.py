@@ -10,6 +10,7 @@ user's home directory.
 """
 from pathlib import Path
 import shutil
+from typing import Union
 
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.io import yaml as io
@@ -33,8 +34,9 @@ class Configuration:
         return Path(self._config["projects_root"])
 
     @projects_root.setter
-    def projects_root(self, projects_root: str):
-        self._config["projects_root"] = projects_root
+    def projects_root(self, projects_root: Union[str, Path]):
+        self._config["projects_root"] = str(projects_root)
+        self.persist()
 
     @property
     def projects(self) -> dict:
@@ -43,6 +45,7 @@ class Configuration:
     @projects.setter
     def projects(self, projects: list):
         self._config["projects"] = projects
+        self.persist()
 
     @property
     def default_project(self) -> str:
@@ -52,6 +55,7 @@ class Configuration:
     def default_project(self, default_project: str):
         self._previous_default_project = self._config["default_project"]
         self._config["default_project"] = default_project
+        self.persist()
 
     def remove(self):
         """Remove the configuration file from disk."""
@@ -88,9 +92,9 @@ class Configuration:
 
         self._config["projects"].append(project_name)
         if set_default:
-            self.default_project = project_name
+            self._config["default_project"] = project_name
 
-        io.dump(self._path, self._config, exist_ok=True)
+        self.persist()
 
     def remove_project(self, project_name: str, new_default: str = "") -> None:
         """Remove a project from the configuration."""
@@ -104,7 +108,7 @@ class Configuration:
         if self._config["default_project"] == project_name:
             self._config["default_project"] = new_default
 
-        io.dump(self._path, self._config, exist_ok=True)
+        self.persist()
 
     def persist(self):
         """Save the configuration to disk."""
@@ -113,3 +117,14 @@ class Configuration:
     def __repr__(self):
         config_list = [f"{k}={v}" for k, v in self._config.items()]
         return f"Configuration(', '.join({config_list}))"
+
+    def __new__(cls):
+        """The configuration is a singleton.
+
+        This, along with the persistence calls in all state modification methods, ensures
+        that the in memory configuration and the on-disk configuration are always in sync.
+
+        """
+        if not hasattr(cls, '_instance'):
+            cls._instance = super(Configuration, cls).__new__(cls)
+        return cls._instance

@@ -6,20 +6,18 @@ Update Configuration
 Update the steamfitter configuration.
 
 """
-from pathlib import Path
 from typing import Union
 
 import click
 
 from steamfitter.app import options
-from steamfitter.app.utilities import get_configuration
+from steamfitter.app.utilities import get_configuration, setup_projects_root
 from steamfitter.lib.cli_tools import (
     logger,
     configure_logging_to_terminal,
     click_options,
     monitoring,
 )
-from steamfitter.lib.shell_tools import mkdir
 
 
 def main(projects_root: Union[str, None], default_project_name: Union[str, None]):
@@ -30,15 +28,16 @@ def main(projects_root: Union[str, None], default_project_name: Union[str, None]
 
     config = get_configuration()
     if projects_root is not None:
-        projects_root = Path(projects_root).expanduser().resolve()
-        if not projects_root.exists():
-            click.echo(f"Projects root {projects_root} does not exist. Creating it.")
-            mkdir(projects_root, parents=True)
+        projects_root, projects = setup_projects_root(projects_root)
         config.projects_root = str(projects_root)
-        config.default_project = None
+        config.projects = projects
+        config.default_project = ""
         click.echo(f"Projects root updated to {config.projects_root}.")
 
     if default_project_name is not None:
+        if default_project_name not in config.projects:
+            click.echo(f"Project {default_project_name} does not exist.")
+            raise click.Abort()
         config.default_project = default_project_name
         click.echo(f"Default project updated to {config.default_project}.")
 

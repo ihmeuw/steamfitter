@@ -6,11 +6,15 @@ Utilities
 This module contains utility functions for the steamfitter CLI.
 
 """
+from pathlib import Path
+from typing import List, Tuple, Union
+
 import click
 import inflection
 
 from steamfitter.app.configuration import Configuration
 from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.lib.shell_tools import mkdir
 
 
 def get_configuration():
@@ -18,6 +22,22 @@ def get_configuration():
         click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
         raise click.Abort()
     return Configuration()
+
+
+def setup_projects_root(projects_root: Union[str, Path]) -> Tuple[Path, List[str]]:
+    projects_root = Path(projects_root).expanduser().resolve()
+    projects = []
+    if not projects_root.exists():
+        click.echo(f"Projects root {projects_root} does not exist. Creating it.")
+        mkdir(projects_root, parents=True)
+    else:
+        click.echo(f"Projects root {projects_root} already exists. Using it.")
+        for child in projects_root.iterdir():
+            if child.is_dir() and ProjectDirectory.is_directory_type(child):
+                click.echo(f"Found project {child.name} in {projects_root}. Adding it.")
+                projects.append(child.name)
+
+    return projects_root, projects
 
 
 def get_project_directory(project_name: str = None) -> ProjectDirectory:

@@ -12,6 +12,7 @@ import click
 from steamfitter.app.configuration import Configuration
 from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.app import options
+from steamfitter.app.utilities import setup_projects_root
 from steamfitter.lib.cli_tools import (
     logger,
     configure_logging_to_terminal,
@@ -26,18 +27,7 @@ def main(projects_root: str):
         click.echo("Configuration file already exists. Aborting.")
         raise click.Abort()
 
-    projects_root = Path(projects_root).expanduser().resolve()
-    projects = []
-    if not projects_root.exists():
-        click.echo(f"Projects root {projects_root} does not exist. Creating it.")
-        mkdir(projects_root, parents=True)
-    else:
-        click.echo(f"Projects root {projects_root} already exists. Using it.")
-        for child in projects_root.iterdir():
-            if child.is_dir() and ProjectDirectory.is_directory_type(child):
-                click.echo(f"Found project {child.name} in {projects_root}. Adding it.")
-                projects.append(child.name)
-
+    projects_root, projects = setup_projects_root(projects_root)
     config = Configuration.create(str(projects_root))
     config.projects = projects
     config.persist()

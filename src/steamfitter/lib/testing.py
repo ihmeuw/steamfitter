@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Callable, Union
 
 import click
 from click.testing import Result, CliRunner
 
 
 def invoke_cli(
-    command: click.Command,
+    command: Union[click.Command, Callable],
     args: List[str] = None,
     exit_zero: bool = True,
 ) -> Result:
