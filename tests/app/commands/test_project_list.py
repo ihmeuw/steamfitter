@@ -22,5 +22,5 @@ def test_list_projects(projects_root):
     invoke_cli(commands.add_project, ["test-project-2", "-m", "test message"])
 
     result = invoke_cli(commands.list_projects)
-    expected = 'Projects\n========\n1       : test-project-1\n2       : test-project-2\n'
+    expected = "Projects\n========\n1       : test-project-1\n2       : test-project-2\n"
     assert expected == result.output
