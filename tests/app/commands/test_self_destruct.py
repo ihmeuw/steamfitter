@@ -35,6 +35,3 @@ def test_self_destruct_with_projects(config_path, projects_root):
     assert not config_path.exists()
     assert not project_path.exists()
     assert not ProjectDirectory.is_directory_type(project_path)
-
-
-
