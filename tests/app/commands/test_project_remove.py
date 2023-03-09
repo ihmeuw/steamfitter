@@ -1,6 +1,6 @@
 from steamfitter.app import commands
-from steamfitter.app.utilities import get_configuration
 from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.app.utilities import get_configuration
 from steamfitter.lib.testing import invoke_cli
 
 
