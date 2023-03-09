@@ -1,6 +1,11 @@
 import functools
 from pathlib import Path
-from typing import Callable, ParamSpec, TypeVar
+from typing import Callable, TypeVar
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
+
 
 import click
 
@@ -9,6 +14,7 @@ from steamfitter.lib.filesystem.metadata import RunMetadata
 
 T = TypeVar("T")
 P = ParamSpec("P")
+
 
 verbose = click.option(
     "-v",

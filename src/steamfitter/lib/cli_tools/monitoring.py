@@ -9,7 +9,11 @@ This module contains functions for monitoring the status of a running CLI applic
 import functools
 import pdb
 from bdb import BdbQuit
-from typing import Callable, Dict, ParamSpec, Tuple, TypeVar
+from typing import Callable, Dict, Tuple, TypeVar
+try:
+    from typing import ParamSpec
+except ImportError:
+    from typing_extensions import ParamSpec
 
 import click
 
@@ -17,6 +21,8 @@ from steamfitter.lib.cli_tools.logging import logger
 from steamfitter.lib.filesystem.metadata import RunMetadata
 
 T = TypeVar("T")
+
+
 P = ParamSpec("P")
 
 
