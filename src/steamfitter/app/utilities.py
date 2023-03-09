@@ -10,7 +10,7 @@ import click
 import inflection
 
 from steamfitter.app.configuration import Configuration
-from steamfitter.app.structure import ProjectDirectory
+from steamfitter.app.directory_structure import ProjectDirectory
 
 
 def get_configuration():
