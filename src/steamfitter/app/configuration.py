@@ -8,8 +8,8 @@ the user configuration of steamfitter. The configuration is stored in a YAML fil
 user's home directory.
 
 """
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import Union
 
 from steamfitter.lib.exceptions import SteamfitterException
@@ -18,11 +18,11 @@ from steamfitter.lib.io import yaml as io
 
 class SteamfitterConfigurationError(SteamfitterException):
     """An exception raised when there is an error with the configuration."""
+
     pass
 
 
 class Configuration:
-
     _path = Path.home() / ".config" / "steamfitter" / "steamfitter.conf"
 
     def __init__(self):
@@ -86,9 +86,7 @@ class Configuration:
     def add_project(self, project_name: str, set_default: bool) -> None:
         """Add a project to the configuration."""
         if project_name in self._config["projects"]:
-            raise SteamfitterConfigurationError(
-                f"Project {project_name} already exists."
-            )
+            raise SteamfitterConfigurationError(f"Project {project_name} already exists.")
 
         self._config["projects"].append(project_name)
         if set_default:
@@ -125,6 +123,6 @@ class Configuration:
         that the in memory configuration and the on-disk configuration are always in sync.
 
         """
-        if not hasattr(cls, '_instance'):
+        if not hasattr(cls, "_instance"):
             cls._instance = super(Configuration, cls).__new__(cls)
         return cls._instance

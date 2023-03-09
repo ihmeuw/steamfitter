@@ -8,7 +8,6 @@ This module contains shared options for the steamfitter CLI.
 """
 import click
 
-
 project_name = click.option(
     "--project-name",
     "-P",
@@ -32,10 +31,7 @@ description = click.option(
     help="A description of the entity.",
 )
 set_default = click.option(
-    "--set-default",
-    "-d",
-    is_flag=True,
-    help="Whether to set the new entity as the default."
+    "--set-default", "-d", is_flag=True, help="Whether to set the new entity as the default."
 )
 projects_root = click.option(
     "--projects-root",

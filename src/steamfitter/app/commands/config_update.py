@@ -13,9 +13,9 @@ import click
 from steamfitter.app import options
 from steamfitter.app.utilities import get_configuration, setup_projects_root
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
 )
 

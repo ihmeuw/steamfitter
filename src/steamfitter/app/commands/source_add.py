@@ -10,20 +10,15 @@ from typing import Union
 
 import click
 
-from steamfitter.app.utilities import (
-    clean_string,
-    get_project_directory,
-)
-from steamfitter.lib.exceptions import SteamfitterException
+from steamfitter.app import options
+from steamfitter.app.utilities import clean_string, get_project_directory
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
 )
-from steamfitter.app import (
-    options,
-)
+from steamfitter.lib.exceptions import SteamfitterException
 
 
 def main(source_name: str, project_name: Union[str, None], description: str):

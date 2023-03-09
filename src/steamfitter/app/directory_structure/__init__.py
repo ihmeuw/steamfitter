@@ -11,7 +11,7 @@ from steamfitter.app.directory_structure.extracted_data import (
 )
 from steamfitter.app.directory_structure.modeling import (
     ModelingDirectory,
-    ModelingStageDirectory
+    ModelingStageDirectory,
 )
 from steamfitter.app.directory_structure.processed_data import (
     ProcessedDataDirectory,

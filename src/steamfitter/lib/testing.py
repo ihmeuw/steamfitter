@@ -1,7 +1,7 @@
-from typing import List, Callable, Union
+from typing import Callable, List, Union
 
 import click
-from click.testing import Result, CliRunner
+from click.testing import CliRunner, Result
 
 
 def invoke_cli(

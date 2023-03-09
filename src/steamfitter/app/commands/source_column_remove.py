@@ -12,17 +12,14 @@ from typing import Union
 import click
 
 from steamfitter.app import options
-from steamfitter.app.utilities import (
-    clean_string,
-    get_project_directory,
-)
-from steamfitter.lib.exceptions import SteamfitterException
+from steamfitter.app.utilities import clean_string, get_project_directory
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
     logger,
     monitoring,
 )
+from steamfitter.lib.exceptions import SteamfitterException
 
 
 def main(
@@ -30,7 +27,7 @@ def main(
     project_name: Union[str, None],
 ):
     """Remove a source column from a project."""
-    source_column_name = clean_string(source_column_name).replace('-', '_')
+    source_column_name = clean_string(source_column_name).replace("-", "_")
     project_directory = get_project_directory(project_name)
     project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory

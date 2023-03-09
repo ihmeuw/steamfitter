@@ -10,4 +10,3 @@ class __Policies(NamedTuple):
 
 
 ARCHIVE_POLICIES = __Policies(*__Policies._fields)
-

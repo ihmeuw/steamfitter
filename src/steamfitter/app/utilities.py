@@ -48,10 +48,10 @@ def get_project_directory(project_name: str = None) -> ProjectDirectory:
     elif not project_name:
         project_name = config.default_project
 
-    project_name = inflection.dasherize(project_name.replace(' ', '_').lower())
+    project_name = inflection.dasherize(project_name.replace(" ", "_").lower())
 
     return ProjectDirectory(config.projects_root / project_name)
 
 
 def clean_string(raw_string: str) -> str:
-    return inflection.dasherize(raw_string.replace(' ', '_').lower())
+    return inflection.dasherize(raw_string.replace(" ", "_").lower())

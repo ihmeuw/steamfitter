@@ -7,8 +7,8 @@ A data diagnostics directory is a project subdirectory for storing data diagnost
 data quality reports, data dictionaries, and plotting outputs.
 
 """
-from steamfitter.lib.filesystem import Directory, ARCHIVE_POLICIES
 from steamfitter.app.directory_structure.version import VersionDirectory
+from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory
 
 
 class DiagnosticDirectory(Directory):
@@ -20,9 +20,7 @@ class DiagnosticDirectory(Directory):
         ("best_version", lambda: ""),
     }
 
-    SUBDIRECTORY_TYPES = (
-        VersionDirectory,
-    )
+    SUBDIRECTORY_TYPES = (VersionDirectory,)
 
 
 class DataDiagnosticsDirectory(Directory):
@@ -32,9 +30,4 @@ class DataDiagnosticsDirectory(Directory):
     NAME_TEMPLATE = "data_diagnostics"
     DESCRIPTION_TEMPLATE = "Data diagnostics for the {project_name} project."
 
-    SUBDIRECTORY_TYPES = (
-        DiagnosticDirectory,
-    )
-
-
-
+    SUBDIRECTORY_TYPES = (DiagnosticDirectory,)

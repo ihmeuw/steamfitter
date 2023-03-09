@@ -10,9 +10,9 @@ import click
 
 from steamfitter.app.utilities import get_configuration
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
 )
 

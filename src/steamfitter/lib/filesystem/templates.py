@@ -1,5 +1,3 @@
-
-
 EXTRACTION = '''
 """Extraction template for {source_name}."""
 import click
@@ -52,7 +50,7 @@ def main(output_root: Path):
 
 '''
 
-GITIGNORE = '''
+GITIGNORE = """
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -171,4 +169,4 @@ metadata.yaml
 # Versioned data directories
 */*/***
 
-'''
+"""

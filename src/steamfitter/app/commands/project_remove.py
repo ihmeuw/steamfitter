@@ -9,19 +9,14 @@ Removes a steamfitter managed project.
 
 import click
 
-from steamfitter.app.utilities import (
-    clean_string,
-    get_configuration,
-)
+from steamfitter.app import options
 from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.app.utilities import clean_string, get_configuration
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
-)
-from steamfitter.app import (
-    options,
 )
 
 

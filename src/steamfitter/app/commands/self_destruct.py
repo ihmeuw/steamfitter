@@ -8,14 +8,12 @@ This command will remove all steamfitter projects and configuration from the sys
 """
 import click
 
-from steamfitter.app.utilities import (
-    get_configuration,
-)
 from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.app.utilities import get_configuration
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
 )
 

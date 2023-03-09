@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+import shutil
 from collections import defaultdict
 from importlib import import_module
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Set, Tuple, Type, TypeVar
-import shutil
 
 import inflection
 
@@ -13,7 +13,6 @@ from steamfitter.lib.filesystem.archive import ARCHIVE_POLICIES
 from steamfitter.lib.filesystem.metadata import Metadata
 from steamfitter.lib.shell_tools import mkdir
 
-
 DEFAULT_VALUE_FACTORY = Callable[[], Any]
 
 DirectoryType = TypeVar("DirectoryType", bound="Directory")
@@ -21,6 +20,7 @@ DirectoryType = TypeVar("DirectoryType", bound="Directory")
 
 class SteamfitterDirectoryError(SteamfitterException):
     """Exception raised for issues managing steamfitter directories."""
+
     pass
 
 
@@ -75,8 +75,7 @@ class Directory:
         return subdirectories
 
     def get_solo_directory_by_class(
-        self,
-        directory_class: Type[DirectoryType]
+        self, directory_class: Type[DirectoryType]
     ) -> DirectoryType:
         """Return the directory of the given class in the current directory."""
         directory_type = directory_class.make_directory_type()
@@ -206,5 +205,3 @@ class Directory:
     def add_initial_content(cls, path: Path, **kwargs):
         """Add initial content to a directory."""
         pass
-
-

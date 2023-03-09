@@ -11,7 +11,6 @@ from typing import Tuple, Union
 
 from loguru import logger
 
-
 JOBMON_LOGGING_LEVEL = 5  # A lower level than logging.DEBUG.
 
 

@@ -8,12 +8,11 @@ of data sources and models aimed at a particular business problem, grant, or oth
 initiative. A project directory contains a data directory and a modeling directory.
 
 """
-from steamfitter.lib.filesystem import Directory
-
 from steamfitter.app.directory_structure.archive import ArchiveDirectory
 from steamfitter.app.directory_structure.data import DataDirectory
 from steamfitter.app.directory_structure.deliverables import DeliverablesDirectory
 from steamfitter.app.directory_structure.modeling import ModelingDirectory
+from steamfitter.lib.filesystem import Directory
 
 
 class ProjectDirectory(Directory):

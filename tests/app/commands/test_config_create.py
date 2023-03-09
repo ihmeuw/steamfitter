@@ -47,7 +47,7 @@ def test_config_create_with_existing_projects_root(config_path, projects_root):
 
 
 def test_config_create_with_existing_projects(config_path, projects_root):
-    project_name = 'test-project'
+    project_name = "test-project"
 
     invoke_cli(commands.create_config, [str(projects_root)])
     invoke_cli(commands.add_project, [project_name, "-m", "test"])

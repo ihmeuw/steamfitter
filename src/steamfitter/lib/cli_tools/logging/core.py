@@ -12,10 +12,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from steamfitter.lib.cli_tools.logging.jobmon import (
-    intercept_jobmon_logs,
-)
-
+from steamfitter.lib.cli_tools.logging.jobmon import intercept_jobmon_logs
 
 LOG_MESSAGING_FORMAT = (
     "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "

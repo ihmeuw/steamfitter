@@ -12,8 +12,8 @@ versions of the results of a data cleaning step, a feature engineering step, or 
 machine learning model.
 
 """
-from steamfitter.lib.filesystem import Directory, ARCHIVE_POLICIES
 from steamfitter.app.directory_structure.version import VersionDirectory
+from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory
 
 
 class ModelingStageDirectory(Directory):
@@ -25,9 +25,7 @@ class ModelingStageDirectory(Directory):
         ("best_version", lambda: ""),
     }
 
-    SUBDIRECTORY_TYPES = (
-        VersionDirectory,
-    )
+    SUBDIRECTORY_TYPES = (VersionDirectory,)
 
 
 class ModelingDirectory(Directory):
@@ -42,9 +40,4 @@ class ModelingDirectory(Directory):
         ("pipeline_stages", lambda: []),
     }
 
-    SUBDIRECTORY_TYPES = (
-        ModelingStageDirectory,
-    )
-
-
-
+    SUBDIRECTORY_TYPES = (ModelingStageDirectory,)

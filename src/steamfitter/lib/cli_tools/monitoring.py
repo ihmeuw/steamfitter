@@ -6,9 +6,9 @@ Monitoring
 This module contains functions for monitoring the status of a running CLI application.
 
 """
-from bdb import BdbQuit
 import functools
 import pdb
+from bdb import BdbQuit
 from typing import Callable, Dict, ParamSpec, Tuple, TypeVar
 
 import click
@@ -16,9 +16,8 @@ import click
 from steamfitter.lib.cli_tools.logging import logger
 from steamfitter.lib.filesystem.metadata import RunMetadata
 
-
-T = TypeVar('T')
-P = ParamSpec('P')
+T = TypeVar("T")
+P = ParamSpec("P")
 
 
 def handle_exceptions(
@@ -49,6 +48,7 @@ def handle_exceptions(
         The wrapped function.
 
     """
+
     @functools.wraps(application_main)
     def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         try:

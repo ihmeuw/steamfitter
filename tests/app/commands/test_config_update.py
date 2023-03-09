@@ -42,7 +42,7 @@ def test_config_update_projects_root_empty(config_path, projects_root, new_root)
 
 def test_config_update_projects_root_non_empty_old(config_path, projects_root, new_root):
     invoke_cli(commands.create_config, [str(projects_root)])
-    invoke_cli(commands.add_project, ["test-project", "-m", "test", '-d'])
+    invoke_cli(commands.add_project, ["test-project", "-m", "test", "-d"])
 
     result = invoke_cli(commands.update_config, ["--projects-root", str(new_root)])
     assert f"Projects root updated to {str(new_root)}" in result.output
@@ -55,7 +55,7 @@ def test_config_update_projects_root_non_empty_old(config_path, projects_root, n
 
 def test_config_update_projects_root_non_empty_new(config_path, projects_root, new_root):
     invoke_cli(commands.create_config, [str(projects_root)])
-    invoke_cli(commands.add_project, ["test-project", "-m", "test", '-d'])
+    invoke_cli(commands.add_project, ["test-project", "-m", "test", "-d"])
 
     invoke_cli(commands.update_config, ["--projects-root", str(new_root)])
     # Now update back to the original root

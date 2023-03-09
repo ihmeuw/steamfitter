@@ -11,9 +11,9 @@ from pathlib import Path
 
 from git import Repo
 
-from steamfitter.lib.exceptions import SteamfitterException
-from steamfitter.lib.filesystem import Directory, ARCHIVE_POLICIES, templates
 from steamfitter.app.directory_structure.version import VersionDirectory
+from steamfitter.lib.exceptions import SteamfitterException
+from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory, templates
 
 
 class ExtractionSourceDirectory(Directory):
@@ -27,9 +27,7 @@ class ExtractionSourceDirectory(Directory):
         ("best_version", lambda: ""),
     }
 
-    SUBDIRECTORY_TYPES = (
-        VersionDirectory,
-    )
+    SUBDIRECTORY_TYPES = (VersionDirectory,)
 
     @classmethod
     def make_name(cls, root: Path, **kwargs) -> str:
@@ -61,9 +59,7 @@ class ExtractedDataDirectory(Directory):
         ("columns", lambda: {}),
     }
 
-    SUBDIRECTORY_TYPES = (
-        ExtractionSourceDirectory,
-    )
+    SUBDIRECTORY_TYPES = (ExtractionSourceDirectory,)
 
     def add_source(self, source_name: str, description: str):
         """Add a source to the extracted data directory."""
@@ -79,10 +75,12 @@ class ExtractedDataDirectory(Directory):
             source_name=source_name,
             description=description,
         )
-        self.update({
-            "source_count": source_count,
-            "sources": {**sources, source_name: source_count},
-        })
+        self.update(
+            {
+                "source_count": source_count,
+                "sources": {**sources, source_name: source_count},
+            }
+        )
         self._metadata.persist()
 
         repo = Repo(self.path)
@@ -105,9 +103,11 @@ class ExtractedDataDirectory(Directory):
         source_path.touch(mode=0o600)
 
         # Preserve the count so we can keep adding new sources to the end.
-        self.update({
-            "sources": self["sources"],
-        })
+        self.update(
+            {
+                "sources": self["sources"],
+            }
+        )
         self._metadata.persist()
 
         repo = Repo(self.path)
@@ -124,12 +124,14 @@ class ExtractedDataDirectory(Directory):
         """Add a source column to the extracted data directory."""
         if source_column_name in self["columns"].values():
             raise SteamfitterException(f"Source column {source_column_name} already exists.")
-        self.update({
-            "columns": {
-                **self["columns"],
-                source_column_name: (source_column_type, is_nullable, description),
-            },
-        })
+        self.update(
+            {
+                "columns": {
+                    **self["columns"],
+                    source_column_name: (source_column_type, is_nullable, description),
+                },
+            }
+        )
         self._metadata.persist()
 
         repo = Repo(self.path)

@@ -17,12 +17,13 @@ def steamfitter():
     pass
 
 
-steamfitter.add_command(commands.self_destruct, name='self-destruct')
+steamfitter.add_command(commands.self_destruct, name="self-destruct")
 
 
 ############################
 # Function first interface #
 ############################
+
 
 @steamfitter.group()
 def add():
@@ -30,8 +31,8 @@ def add():
     pass
 
 
-add.add_command(commands.add_project, name='project')
-add.add_command(commands.add_source, name='source')
+add.add_command(commands.add_project, name="project")
+add.add_command(commands.add_source, name="source")
 
 
 @steamfitter.group()
@@ -40,8 +41,8 @@ def remove():
     pass
 
 
-remove.add_command(commands.remove_project, name='project')
-remove.add_command(commands.remove_source, name='source')
+remove.add_command(commands.remove_project, name="project")
+remove.add_command(commands.remove_source, name="source")
 
 
 @steamfitter.group()
@@ -50,14 +51,15 @@ def list():
     pass
 
 
-list.add_command(commands.list_projects, name='project')
-list.add_command(commands.list_sources, name='source')
-list.add_command(commands.list_config, name='config')
+list.add_command(commands.list_projects, name="project")
+list.add_command(commands.list_sources, name="source")
+list.add_command(commands.list_config, name="config")
 
 
 ##########################
 # Entity first interface #
 ##########################
+
 
 @steamfitter.group()
 def config():

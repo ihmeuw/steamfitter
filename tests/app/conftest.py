@@ -19,7 +19,3 @@ def configuration_with_patched_path(monkeypatch, config_path):
         "steamfitter.app.configuration.Configuration._path",
         config_path,
     )
-
-
-
-

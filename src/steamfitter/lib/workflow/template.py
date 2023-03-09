@@ -5,8 +5,15 @@ from pathlib import Path
 from typing import Dict, Type, TypeVar
 
 from steamfitter.lib.ihme import Task, WorkflowRunStatus
-from steamfitter.lib.workflow.specification import TaskSpecification, WorkflowSpecification
-from steamfitter.lib.workflow.utilities import JobmonTool, get_cluster_name, make_log_dirs
+from steamfitter.lib.workflow.specification import (
+    TaskSpecification,
+    WorkflowSpecification,
+)
+from steamfitter.lib.workflow.utilities import (
+    JobmonTool,
+    get_cluster_name,
+    make_log_dirs,
+)
 
 
 class TaskTemplate(abc.ABC):

@@ -9,14 +9,14 @@ List all extraction sources for a project managed by steamfitter.
 
 import click
 
+from steamfitter.app import options
 from steamfitter.app.utilities import get_project_directory
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
 )
-from steamfitter.app import options
 
 
 def main(project_name: str):
@@ -26,7 +26,7 @@ def main(project_name: str):
     if sources:
         title = f"Sources for project {project_name}"
         click.echo(title)
-        click.echo("="*len(title))
+        click.echo("=" * len(title))
         for source_number, source in sources.items():
             click.echo(f"{source_number:<8}: {source}")
     else:

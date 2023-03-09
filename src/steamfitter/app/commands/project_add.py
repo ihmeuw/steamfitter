@@ -8,25 +8,19 @@ Adds a new steamfitter project.
 """
 import click
 
+from steamfitter.app import options
 from steamfitter.app.configuration import SteamfitterConfigurationError
-from steamfitter.app.utilities import (
-    clean_string,
-    get_configuration,
-)
 from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.app.utilities import clean_string, get_configuration
 from steamfitter.lib.cli_tools import (
-    logger,
-    configure_logging_to_terminal,
     click_options,
+    configure_logging_to_terminal,
+    logger,
     monitoring,
-)
-from steamfitter.app import (
-    options,
 )
 
 
 def main(project_name: str, description: str, set_default: bool):
-
     config = get_configuration()
     project_name = clean_string(project_name)
 

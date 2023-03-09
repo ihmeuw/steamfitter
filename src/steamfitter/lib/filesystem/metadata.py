@@ -24,8 +24,8 @@ specific data extraction applications and modeling applications.
 
 """
 import datetime
-from pathlib import Path
 import time
+from pathlib import Path
 from typing import Any, Dict, Union
 
 from steamfitter.lib.io import yaml as io
@@ -128,12 +128,8 @@ class Metadata:
 
 class RunMetadata(Metadata):
     """Extension of the base metadata class to store information about a tool run."""
-    def __init__(
-        self,
-        metadata_dict: Dict = None,
-        application_name: str = None,
-        **kwargs
-    ):
+
+    def __init__(self, metadata_dict: Dict = None, application_name: str = None, **kwargs):
         if application_name is None:
             raise ValueError("RunMetadata requires an application name.")
         super().__init__(metadata_dict, **kwargs)

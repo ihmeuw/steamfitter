@@ -19,4 +19,3 @@ class ArchiveDirectory(Directory):
         ("archived_file_count", lambda: 0),
         ("archived_data_size", lambda: "0 GB"),
     }
-

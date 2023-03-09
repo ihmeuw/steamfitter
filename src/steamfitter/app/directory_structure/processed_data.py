@@ -9,8 +9,8 @@ been processed where a measure is a domain-specific term for a type of data. For
 in a project that processes data from a hospital, a measure might be "daily admissions".
 
 """
-from steamfitter.lib.filesystem import Directory, ARCHIVE_POLICIES
 from steamfitter.app.directory_structure.version import VersionDirectory
+from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory
 
 
 class ProcessedMeasureDirectory(Directory):
@@ -22,9 +22,7 @@ class ProcessedMeasureDirectory(Directory):
         ("best_version", lambda: ""),
     }
 
-    SUBDIRECTORY_TYPES = (
-        VersionDirectory,
-    )
+    SUBDIRECTORY_TYPES = (VersionDirectory,)
 
 
 class ProcessedDataDirectory(Directory):
@@ -38,6 +36,4 @@ class ProcessedDataDirectory(Directory):
         ("measures", lambda: []),
     }
 
-    SUBDIRECTORY_TYPES = (
-        ProcessedMeasureDirectory,
-    )
+    SUBDIRECTORY_TYPES = (ProcessedMeasureDirectory,)

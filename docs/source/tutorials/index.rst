@@ -7,7 +7,7 @@ Tutorials
 .. toctree::
    :maxdepth: 2
 
-    configuration
-    adding_a_project
+   configuration
+   adding_a_project
 
 
