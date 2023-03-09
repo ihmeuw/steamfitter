@@ -10,7 +10,7 @@ from pathlib import Path
 import click
 
 from steamfitter.app.configuration import Configuration
-from steamfitter.app.structure import ProjectDirectory
+from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.app import options
 from steamfitter.lib.cli_tools import (
     logger,

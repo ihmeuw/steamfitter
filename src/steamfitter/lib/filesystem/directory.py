@@ -38,7 +38,7 @@ class Directory:
 
     SUBDIRECTORY_TYPES: Tuple[Type[Directory], ...] = ()
 
-    def __init__(self, path: Path, parent: Directory = None):
+    def __init__(self, path: Path, parent: DirectoryType = None):
         if not self.is_directory_type(path):
             raise SteamfitterDirectoryError(
                 f"Directory {path} is not of type {self.make_directory_type()}."
@@ -57,7 +57,7 @@ class Directory:
         except FileNotFoundError:
             return False
 
-    def collect_subdirectories(self, path: Path) -> Dict[str, List[Directory]]:
+    def collect_subdirectories(self, path: Path) -> Dict[str, List[DirectoryType]]:
         """Collect all subdirectories of this directory."""
         subdirectories = defaultdict(list)
         for subdirectory in path.iterdir():
@@ -74,7 +74,10 @@ class Directory:
                     pass
         return subdirectories
 
-    def get_solo_directory_by_class(self, directory_class: Type[Directory]) -> Directory:
+    def get_solo_directory_by_class(
+        self,
+        directory_class: Type[DirectoryType]
+    ) -> DirectoryType:
         """Return the directory of the given class in the current directory."""
         directory_type = directory_class.make_directory_type()
         directory = self._subdirectories[directory_type]
@@ -109,10 +112,10 @@ class Directory:
     def create(
         cls,
         root: Path,
-        parent: Directory = None,
+        parent: DirectoryType = None,
         exists_ok: bool = False,
         **kwargs,
-    ) -> Directory:
+    ) -> DirectoryType:
         """Create a new directory."""
         name = cls.make_name(root=root, **kwargs)
         path = root / name

@@ -24,8 +24,9 @@ def main(project_name: str):
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
     sources = extracted_data_directory["sources"]
     if sources:
-        click.echo("Sources")
-        click.echo("=======")
+        title = f"Sources for project {project_name}"
+        click.echo(title)
+        click.echo("="*len(title))
         for source_number, source in sources.items():
             click.echo(f"{source_number:<8}: {source}")
     else:

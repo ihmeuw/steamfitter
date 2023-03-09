@@ -9,7 +9,6 @@ Adds a new source to a steamfitter project.
 from typing import Union
 
 import click
-from git import Repo
 
 from steamfitter.app.utilities import (
     clean_string,

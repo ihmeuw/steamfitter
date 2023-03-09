@@ -11,7 +11,7 @@ import click
 from steamfitter.app.utilities import (
     get_configuration,
 )
-from steamfitter.app.structure import ProjectDirectory
+from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.lib.cli_tools import (
     logger,
     configure_logging_to_terminal,
