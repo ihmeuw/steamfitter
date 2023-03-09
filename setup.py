@@ -15,12 +15,15 @@ if __name__ == "__main__":
 
     install_requirements = [
         "click",
+        "GitPython",
+        "inflection",
         "loguru",
         "numpy",
         "pandas",
         "pathos",
         "pyyaml>=5.1",
         "tqdm",
+        "typing-extensions",
     ]
 
     test_requirements = [
@@ -65,4 +68,9 @@ if __name__ == "__main__":
             "dev": (doc_requirements + test_requirements + other_dev_requirements),
         },
         zip_safe=False,
+        entry_points="""
+            [console_scripts]
+            steamfitter=steamfitter.app.cli:steamfitter
+            sf=steamfitter.app.cli:steamfitter
+        """,
     )
