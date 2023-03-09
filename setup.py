@@ -23,6 +23,7 @@ if __name__ == "__main__":
         "pathos",
         "pyyaml>=5.1",
         "tqdm",
+        "typing-extensions",
     ]
 
     test_requirements = [
