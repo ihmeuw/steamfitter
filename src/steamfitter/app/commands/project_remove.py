@@ -10,6 +10,7 @@ Removes a steamfitter managed project.
 import click
 
 from steamfitter.app import options
+from steamfitter.app.configuration import SteamfitterConfigurationError
 from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.app.utilities import clean_string, get_configuration
 from steamfitter.lib.cli_tools import (
@@ -25,8 +26,13 @@ def main(project_name: str):
     config = get_configuration()
 
     project_name = clean_string(project_name)
-    config.remove_project(project_name)
-    ProjectDirectory.remove(config.projects_root)
+    try:
+        config.remove_project(project_name)
+    except SteamfitterConfigurationError as e:
+        click.echo(e)
+        raise click.Abort()
+
+    ProjectDirectory.remove(config.projects_root / project_name)
     click.echo(f"Project {project_name} removed from the configuration.")
 
 
