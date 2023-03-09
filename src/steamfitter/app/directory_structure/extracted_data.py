@@ -67,7 +67,8 @@ class ExtractedDataDirectory(Directory):
 
     def add_source(self, source_name: str, description: str):
         """Add a source to the extracted data directory."""
-        if source_name in self["sources"].values():
+        sources = self["sources"].copy()
+        if source_name in sources:
             raise SteamfitterException(f"Source {source_name} already exists.")
 
         source_count = self["source_count"] + 1
@@ -80,7 +81,7 @@ class ExtractedDataDirectory(Directory):
         )
         self.update({
             "source_count": source_count,
-            "sources": {**self["sources"], source_count: source_name},
+            "sources": {**sources, source_name: source_count},
         })
         self._metadata.persist()
 
@@ -90,23 +91,22 @@ class ExtractedDataDirectory(Directory):
 
     def remove_source(self, source_name: str):
         """Remove a source from the extracted data directory."""
-        if source_name not in self["sources"].values():
+        sources = self["sources"].copy()
+        if source_name not in sources:
             raise SteamfitterException(f"Source {source_name} does not exist.")
 
-        source_count = self["sources"].keys()[self["sources"].values().index(source_name)]
-        source_dir = self.path / ExtractionSourceDirectory.make_name(
+        source_count = sources.pop(source_name)
+        source_path = self.path / ExtractionSourceDirectory.make_name(
             root=self.path,
             source_count=source_count,
             source_name=source_name,
         )
-        source_dir.rmdir()
+        source_path.rmdir()
+        source_path.touch(mode=0o600)
+
+        # Preserve the count so we can keep adding new sources to the end.
         self.update({
-            "source_count": self["source_count"] - 1,
-            "sources": {
-                k: v
-                for k, v in self["sources"].items()
-                if v != source_name
-            },
+            "sources": self["sources"],
         })
         self._metadata.persist()
 
