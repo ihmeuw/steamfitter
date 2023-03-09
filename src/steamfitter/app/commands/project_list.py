@@ -22,8 +22,8 @@ def main():
     if config.projects:
         click.echo("Projects")
         click.echo("========")
-        for project_number, project_name in config.projects.items():
-            click.echo(f"{project_number:<8}: {project_name}")
+        for project_number, project_name in enumerate(config.projects):
+            click.echo(f"{project_number+1:<8}: {project_name}")
     else:
         click.echo("No projects found.")
 
