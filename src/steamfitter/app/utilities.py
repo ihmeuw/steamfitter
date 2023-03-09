@@ -13,14 +13,20 @@ import click
 import inflection
 
 from steamfitter.app.configuration import Configuration
+from steamfitter.app.validation import (
+    ConfigurationDoesNotExistError,
+    ProjectDoesNotExistError,
+    NoDefaultProjectError,
+    NoProjectsExistError,
+)
+
 from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.lib.shell_tools import mkdir
 
 
 def get_configuration():
     if not Configuration.exists():
-        click.echo("Configuration file does not exist. Run `steamfitter configure` first.")
-        raise click.Abort()
+        raise ConfigurationDoesNotExistError()
     return Configuration()
 
 
@@ -42,13 +48,14 @@ def setup_projects_root(projects_root: Union[str, Path]) -> Tuple[Path, List[str
 
 def get_project_directory(project_name: str = None) -> ProjectDirectory:
     config = get_configuration()
-    if not (project_name or config.default_project):
-        click.echo("No project provided and no default project set. Aborting.")
-        raise click.Abort()
-    elif not project_name:
-        project_name = config.default_project
+    project_name = project_name if project_name else config.default_project
 
-    project_name = inflection.dasherize(project_name.replace(" ", "_").lower())
+    if not config.projects:
+        raise NoProjectsExistError()
+    elif not project_name:
+        raise NoDefaultProjectError()
+    elif project_name not in config.projects:
+        raise ProjectDoesNotExistError(project_name)
 
     return ProjectDirectory(config.projects_root / project_name)
 

@@ -11,6 +11,7 @@ import click
 
 from steamfitter.app import options
 from steamfitter.app.utilities import get_project_directory
+from steamfitter.app.validation import NoSourcesExistError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -23,14 +24,15 @@ def main(project_name: str):
     project_directory = get_project_directory(project_name)
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
     sources = extracted_data_directory["sources"]
-    if sources:
-        title = f"Sources for project {project_name}"
-        click.echo(title)
-        click.echo("=" * len(title))
-        for source_number, source in sources.items():
-            click.echo(f"{source_number:<8}: {source}")
-    else:
-        click.echo("No sources found.")
+
+    if not sources:
+        raise NoSourcesExistError()
+
+    title = f"Sources for project {project_name}"
+    click.echo(title)
+    click.echo("=" * len(title))
+    for source_number, source in sources.items():
+        click.echo(f"{source_number:<8}: {source}")
 
 
 @click.command()

@@ -19,7 +19,6 @@ from steamfitter.lib.cli_tools import (
 
 def main():
     config = get_configuration()
-
     click.echo(f"Projects root: {config.projects_root}")
     click.echo(f"Default project: {config.default_project}")
     click.echo(f"Projects: {', '.join(config.projects)}")

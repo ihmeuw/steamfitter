@@ -10,6 +10,7 @@ import click
 
 from steamfitter.app import options
 from steamfitter.app.utilities import clean_string, get_project_directory
+from steamfitter.app.validation import SourceDoesNotExistError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -22,9 +23,13 @@ def main(source_name: str, project_name: str):
     """Remove a data source from a project."""
     project_directory = get_project_directory(project_name)
     source_name = clean_string(source_name)
-
     extracted_data_dir = project_directory.data_directory.extracted_data_directory
+
+    if source_name not in extracted_data_dir.sources:
+        raise SourceDoesNotExistError(source_name)
+
     extracted_data_dir.remove_source(source_name=source_name)
+
     click.echo(f"Source {source_name} removed from project {project_name}.")
 
 

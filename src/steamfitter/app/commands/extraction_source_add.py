@@ -12,6 +12,7 @@ import click
 
 from steamfitter.app import options
 from steamfitter.app.utilities import clean_string, get_project_directory
+from steamfitter.app.validation import SourceExistsError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -27,11 +28,11 @@ def main(source_name: str, project_name: Union[str, None], description: str):
     project_directory = get_project_directory(project_name)
     project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
-    try:
-        extracted_data_directory.add_source(source_name=source_name, description=description)
-    except SteamfitterException as e:
-        click.echo(str(e))
-        raise click.Abort()
+
+    if source_name in extracted_data_directory.sources:
+        raise SourceExistsError(source_name)
+
+    extracted_data_directory.add_source(source_name=source_name, description=description)
 
     click.echo(f"Source {source_name} added to project {project_name}.")
 

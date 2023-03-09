@@ -6,13 +6,11 @@ Create Configuration
 Configure steamfitter for the first time.
 
 """
-from pathlib import Path
-
 import click
 
 from steamfitter.app import options
 from steamfitter.app.configuration import Configuration
-from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.app.validation import ConfigurationExistsError
 from steamfitter.app.utilities import setup_projects_root
 from steamfitter.lib.cli_tools import (
     click_options,
@@ -20,13 +18,11 @@ from steamfitter.lib.cli_tools import (
     logger,
     monitoring,
 )
-from steamfitter.lib.shell_tools import mkdir
 
 
 def main(projects_root: str):
     if Configuration.exists():
-        click.echo("Configuration file already exists. Aborting.")
-        raise click.Abort()
+        raise ConfigurationExistsError()
 
     projects_root, projects = setup_projects_root(projects_root)
     config = Configuration.create(str(projects_root))

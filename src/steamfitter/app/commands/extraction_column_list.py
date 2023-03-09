@@ -27,6 +27,7 @@ def main(project_name: Union[str, None]):
     project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
     source_columns = extracted_data_directory["source_columns"]
+
     if source_columns:
         title = f"Source columns for project {project_name}"
         click.echo(title)

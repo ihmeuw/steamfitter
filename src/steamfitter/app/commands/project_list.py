@@ -9,6 +9,7 @@ List all projects managed by steamfitter.
 import click
 
 from steamfitter.app.utilities import get_configuration
+from steamfitter.app.validation import NoProjectsExistError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -19,13 +20,14 @@ from steamfitter.lib.cli_tools import (
 
 def main():
     config = get_configuration()
-    if config.projects:
-        click.echo("Projects")
-        click.echo("========")
-        for project_number, project_name in enumerate(config.projects):
-            click.echo(f"{project_number+1:<8}: {project_name}")
-    else:
-        click.echo("No projects found.")
+
+    if not config.projects:
+        raise NoProjectsExistError()
+
+    click.echo("Projects")
+    click.echo("========")
+    for project_number, project_name in enumerate(config.projects):
+        click.echo(f"{project_number+1:<8}: {project_name}")
 
 
 @click.command()

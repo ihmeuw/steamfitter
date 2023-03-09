@@ -56,10 +56,18 @@ class ExtractedDataDirectory(Directory):
     DEFAULT_EMPTY_ARGS = {
         ("source_count", lambda: 0),
         ("sources", lambda: {}),
-        ("columns", lambda: {}),
+        ("source_columns", lambda: {}),
     }
 
     SUBDIRECTORY_TYPES = (ExtractionSourceDirectory,)
+
+    @property
+    def sources(self):
+        return self["sources"].copy()
+
+    @property
+    def source_columns(self):
+        return self["source_columns"].copy()
 
     def add_source(self, source_name: str, description: str):
         """Add a source to the extracted data directory."""
@@ -89,7 +97,7 @@ class ExtractedDataDirectory(Directory):
 
     def remove_source(self, source_name: str):
         """Remove a source from the extracted data directory."""
-        sources = self["sources"].copy()
+        sources = self.sources
         if source_name not in sources:
             raise SteamfitterException(f"Source {source_name} does not exist.")
 
@@ -122,7 +130,7 @@ class ExtractedDataDirectory(Directory):
         description: str,
     ):
         """Add a source column to the extracted data directory."""
-        if source_column_name in self["columns"].values():
+        if source_column_name in self.source_columns:
             raise SteamfitterException(f"Source column {source_column_name} already exists.")
         self.update(
             {
@@ -137,6 +145,21 @@ class ExtractedDataDirectory(Directory):
         repo = Repo(self.path)
         repo.git.add(".")
         repo.index.commit(f"Added source column {source_column_name}.")
+
+    def remove_source_column(self, source_column_name: str):
+        """Remove a source column from the extracted data directory."""
+        source_columns = self.source_columns
+        if source_column_name not in source_columns:
+            raise SteamfitterException(f"Source column {source_column_name} does not exist.")
+
+        source_columns.pop(source_column_name)
+        self["columns"] = source_columns
+
+        self._metadata.persist()
+
+        repo = Repo(self.path)
+        repo.git.add(".")
+        repo.index.commit(f"Removed source column {source_column_name}.")
 
     @classmethod
     def add_initial_content(cls, path: Path, **kwargs):

@@ -9,9 +9,9 @@ Adds a new steamfitter project.
 import click
 
 from steamfitter.app import options
-from steamfitter.app.configuration import SteamfitterConfigurationError
 from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.app.utilities import clean_string, get_configuration
+from steamfitter.app.validation import ProjectExistsError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -24,12 +24,10 @@ def main(project_name: str, description: str, set_default: bool):
     config = get_configuration()
     project_name = clean_string(project_name)
 
-    try:
-        config.add_project(project_name, set_default=set_default)
-    except SteamfitterConfigurationError as e:
-        click.echo(str(e))
-        raise click.Abort()
+    if project_name in config.projects:
+        raise ProjectExistsError(project_name)
 
+    config.add_project(project_name, set_default=set_default)
     ProjectDirectory.create(
         config.projects_root,
         name=project_name,
