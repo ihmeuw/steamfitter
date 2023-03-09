@@ -18,7 +18,6 @@ from steamfitter.lib.cli_tools import (
     click_options,
     monitoring,
 )
-from steamfitter.lib.filesystem.directory import SteamfitterDirectoryError
 from steamfitter.lib.shell_tools import mkdir
 
 

@@ -43,7 +43,7 @@ projects_root = click.option(
     default=None,
     help="The root directory for all steamfitter projects",
 )
-projects_root_required = click.option("projects-root")
+projects_root_required = click.argument("projects-root")
 default_project_name = click.option(
     "--default-project-name",
     "-D",

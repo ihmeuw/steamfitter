@@ -104,6 +104,9 @@ class Directory:
         """Update the metadata of a directory."""
         self._metadata.update(new_metadata)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(path={self.path}, metadata={self.metadata})"
+
     ##############################
     # On-disk directory creation #
     ##############################
@@ -168,7 +171,7 @@ class Directory:
 
     @classmethod
     def make_directory_type(cls) -> str:
-        return inflection.underscore(cls.__name__.split("Metadata")[0])
+        return inflection.underscore(cls.__name__.split("Directory")[0])
 
     @classmethod
     def make_name(cls, root: Path, **kwargs) -> str:
@@ -203,4 +206,5 @@ class Directory:
     def add_initial_content(cls, path: Path, **kwargs):
         """Add initial content to a directory."""
         pass
+
 

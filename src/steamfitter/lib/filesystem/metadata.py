@@ -122,6 +122,9 @@ class Metadata:
         io.dump(metadata_path, metadata_dict, exist_ok=False)
         return cls.from_directory(root)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self._metadata})"
+
 
 class RunMetadata(Metadata):
     """Extension of the base metadata class to store information about a tool run."""

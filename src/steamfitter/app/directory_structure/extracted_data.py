@@ -88,6 +88,32 @@ class ExtractedDataDirectory(Directory):
         repo.git.add(".")
         repo.index.commit(f"Added source {source_name}.")
 
+    def remove_source(self, source_name: str):
+        """Remove a source from the extracted data directory."""
+        if source_name not in self["sources"].values():
+            raise SteamfitterException(f"Source {source_name} does not exist.")
+
+        source_count = self["sources"].keys()[self["sources"].values().index(source_name)]
+        source_dir = self.path / ExtractionSourceDirectory.make_name(
+            root=self.path,
+            source_count=source_count,
+            source_name=source_name,
+        )
+        source_dir.rmdir()
+        self.update({
+            "source_count": self["source_count"] - 1,
+            "sources": {
+                k: v
+                for k, v in self["sources"].items()
+                if v != source_name
+            },
+        })
+        self._metadata.persist()
+
+        repo = Repo(self.path)
+        repo.git.add(".")
+        repo.index.commit(f"Removed source {source_name}.")
+
     def add_source_column(
         self,
         source_column_name: str,
