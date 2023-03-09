@@ -24,7 +24,7 @@ def main():
         "Are you sure you want to destroy all projects and configuration?",
         abort=True,
     )
-    for project in configuration.projects.values():
+    for project in configuration.projects:
         click.echo(f"Removing project: {project}")
         ProjectDirectory.remove(configuration.projects_root / project)
     click.echo("Removing configuration file.")
@@ -32,7 +32,7 @@ def main():
     click.echo("All projects and configuration removed.")
 
 
-@click.command
+@click.command(hidden=True)
 @click_options.verbose_and_with_debugger
 def self_destruct(verbose: int, with_debugger: bool):
     """Destroy the configuration file and all projects managed by steamfitter."""
