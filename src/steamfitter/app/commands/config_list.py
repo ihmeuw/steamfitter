@@ -22,7 +22,7 @@ def main():
 
     click.echo(f"Projects root: {config.projects_root}")
     click.echo(f"Default project: {config.default_project}")
-    click.echo(f"Projects: {', '.join(config.projects.values())}")
+    click.echo(f"Projects: {', '.join(config.projects)}")
 
 
 @click.command()

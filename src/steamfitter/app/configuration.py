@@ -42,7 +42,7 @@ class Configuration:
 
     @projects.setter
     def projects(self, projects: list):
-        self._config["projects"] = {i: project for i, project in enumerate(projects)}
+        self._config["projects"] = projects
 
     @property
     def default_project(self) -> str:
@@ -81,13 +81,12 @@ class Configuration:
 
     def add_project(self, project_name: str, set_default: bool) -> None:
         """Add a project to the configuration."""
-        if project_name in self._config["projects"].values():
+        if project_name in self._config["projects"]:
             raise SteamfitterConfigurationError(
                 f"Project {project_name} already exists."
             )
 
-        proj_number = max(self._config["projects"]) if self._config["projects"] else 0
-        self._config["projects"][proj_number] = project_name
+        self._config["projects"].append(project_name)
         if set_default:
             self.default_project = project_name
 

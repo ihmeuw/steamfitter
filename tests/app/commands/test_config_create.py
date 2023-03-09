@@ -1,99 +1,67 @@
-from pathlib import Path
-
-from click.testing import CliRunner
-import pytest
-
-from steamfitter.app.commands.config_create import create_config
+from steamfitter.app import commands
 from steamfitter.app.configuration import Configuration
-from steamfitter.lib.io import yaml
+from steamfitter.lib.testing import invoke_cli
 
 
-def test_config_create(tmpdir):
-    config_path = Path(tmpdir) / "config.yaml"
-    project_root = Path(tmpdir) / "tests/app/projects"
-
+def test_config_create(config_path, projects_root):
     assert not config_path.exists()
-    assert not project_root.exists()
+    assert not projects_root.exists()
 
-    runner = CliRunner()
-    result = runner.invoke(create_config, [str(project_root)])
-
-    assert result.exit_code == 0
+    result = invoke_cli(commands.create_config, [str(projects_root)])
 
     assert config_path.exists()
-    assert project_root.exists()
+    assert projects_root.exists()
 
     config = Configuration()
-    assert config.projects_root == project_root
-    assert config.projects == {}
+    assert config.projects_root == projects_root
+    assert config.projects == []
     assert config.default_project == ""
 
-    assert f"Projects root {str(project_root)} does not exist" in result.output
-    assert "Configuration file written to" in result.output
-    assert str(config_path) in result.output
+    assert f"Projects root {str(projects_root)} does not exist" in result.output
+    assert f"Configuration file written to {str(config_path)}" in result.output
 
 
-def test_config_create_with_existing_config(tmpdir):
-
-    config_path = Path(tmpdir) / "config.yaml"
-    project_root = Path(tmpdir) / "tests/app/projects"
-
+def test_config_create_with_existing_config(config_path, projects_root):
     config_path.touch()
     assert config_path.exists()
 
-    runner = CliRunner()
-    result = runner.invoke(create_config, [str(project_root)])
+    result = invoke_cli(commands.create_config, [str(projects_root)], exit_zero=False)
 
     assert result.exit_code == 1
     assert "Configuration file already exists" in result.output
     assert "Aborting" in result.output
 
 
-def test_config_create_with_existing_projects_root(tmpdir):
-    config_path = Path(tmpdir) / "config.yaml"
-    project_root = Path(tmpdir) / "tests/app/projects"
+def test_config_create_with_existing_projects_root(config_path, projects_root):
+    projects_root.mkdir(parents=True)
+    assert projects_root.exists()
 
-    project_root.mkdir(parents=True)
-    assert project_root.exists()
-
-    runner = CliRunner()
-    result = runner.invoke(create_config, [str(project_root)])
-
-    assert result.exit_code == 0
-    assert "Configuration file written to" in result.output
-    assert str(config_path) in result.output
+    result = invoke_cli(commands.create_config, [str(projects_root)])
+    assert f"Configuration file written to {str(config_path)}" in result.output
+    assert f"Projects root {str(projects_root)} already exists. Using it." in result.output
 
     config = Configuration()
-    assert config.projects_root == project_root
-    assert config.projects == {}
+    assert config.projects_root == projects_root
+    assert config.projects == []
     assert config.default_project == ""
 
-    assert "Projects root" not in result.output
 
+def test_config_create_with_existing_projects(config_path, projects_root):
+    project_name = 'test-project'
 
-def test_config_create_with_existing_projects(tmpdir):
-    config_path = Path(tmpdir) / "config.yaml"
-    project_root = Path(tmpdir) / "tests/app/projects"
+    invoke_cli(commands.create_config, [str(projects_root)])
+    invoke_cli(commands.add_project, [project_name, "-m", "test"])
 
-    project_root.mkdir(parents=True)
-    assert project_root.exists()
+    # Now delete the config so this is like a new user running the command against
+    # an existing projects root
+    config_path.unlink()
 
-    project_dir = project_root / "project"
-    project_dir.mkdir()
-    project_metadata_file = project_dir / "metadata.yaml"
-    project_metadata = {"name": "project", "directory_type": "project"}
-    yaml.dump(project_metadata_file, project_metadata)
-
-    runner = CliRunner()
-    result = runner.invoke(create_config, [str(project_root)])
-
-    assert result.exit_code == 0
-    assert "Configuration file written to" in result.output
-    assert str(config_path) in result.output
+    result = invoke_cli(commands.create_config, [str(projects_root)])
+    assert f"Configuration file written to {str(config_path)}" in result.output
+    assert f"Projects root {str(projects_root)} already exists. Using it." in result.output
+    assert f"Found project {project_name} in {projects_root}. Adding it." in result.output
 
     config = Configuration()
-    assert config.projects_root == project_root
-    assert config.projects == {0: "project"}
+    assert config.projects_root == projects_root
+    assert config.projects == [project_name]
     assert config.default_project == ""
-
-    assert "Projects root" not in result.output

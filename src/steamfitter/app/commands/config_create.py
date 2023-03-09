@@ -32,8 +32,10 @@ def main(projects_root: str):
         click.echo(f"Projects root {projects_root} does not exist. Creating it.")
         mkdir(projects_root, parents=True)
     else:
+        click.echo(f"Projects root {projects_root} already exists. Using it.")
         for child in projects_root.iterdir():
             if child.is_dir() and ProjectDirectory.is_directory_type(child):
+                click.echo(f"Found project {child.name} in {projects_root}. Adding it.")
                 projects.append(child.name)
 
     config = Configuration.create(str(projects_root))
