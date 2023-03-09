@@ -1,6 +1,7 @@
 import functools
 from pathlib import Path
 from typing import Callable, TypeVar
+
 try:
     from typing import ParamSpec
 except ImportError:
