@@ -1,10 +1,26 @@
 import itertools
 from pathlib import Path
-from typing import NamedTuple
+from typing import Callable, Tuple, Type, List, NamedTuple
 
 import pytest
 
 from steamfitter.app import commands
+from steamfitter.app.validation import (
+    SteamfitterCLIException,
+    ConfigurationExistsError,
+    ConfigurationDoesNotExistError,
+    NoConfigurationUpdateError,
+    ProjectExistsError,
+    ProjectDoesNotExistError,
+    NoDefaultProjectError,
+    NoProjectsExistError,
+    SourceExistsError,
+    SourceDoesNotExistError,
+    NoSourcesExistError,
+    SourceColumnExistsError,
+    SourceColumnDoesNotExistError,
+    NoSourceColumnsExistError,
+)
 from steamfitter.lib.testing import invoke_cli
 
 
@@ -65,6 +81,17 @@ ENVIRONMENT_CONFIGURATIONS = __EnvironmentConfigurations(
 )
 
 
+class __Resource(NamedTuple):
+    config: str
+    project: str
+    default_project: str
+    source: str
+    source_column: str
+
+
+RESOURCE = __Resource(*__Resource._fields)
+
+
 @pytest.fixture()
 def config_path(tmpdir):
     return Path(tmpdir) / "config.yaml"
@@ -117,8 +144,8 @@ def projects(request, project_name, projects_root):
         return []
 
     default = ['-d'] if 'with_default' in request.param else []
-    project_count = 1 if 'single_project' in request.param else 3
-    args = [[f"{project_name}{i+1}", "-m", "test"] for i in range(project_count)]
+    project_suffix = [''] if 'single_project' in request.param else ['', '1', '2']
+    args = [[f"{project_name}{s}", "-m", "test"] for s in project_suffix]
     args[0] += default
 
     projects = []
@@ -177,43 +204,176 @@ def columns(request, projects):
 
 
 @pytest.fixture()
-def column_exists(columns):
+def columns_exists(columns):
     return bool(columns)
+
+
+class CommandArgSpec(NamedTuple):
+    command: Callable
+    args: List[str]
+    requires: Tuple[Tuple[str, Type[SteamfitterCLIException]], ...] = None
+    excludes: Tuple[Tuple[str, Type[SteamfitterCLIException]], ...] = None
+    exception: Type[SteamfitterCLIException] = None
 
 
 
 @pytest.fixture(params=[
-    (commands.create_config, ["{projects_root}"]),
-    (commands.list_config, []),
-    (commands.update_config, ['--projects-root', '{projects_root}']),
-    (commands.update_config, ['--default-project', '{project_name}']),
-    (commands.update_config, ['--projects-root', '{projects_root}',
-                              '--default-project', '{project_name}' ]),
-    (commands.add_project, ['{project_name}', '-m', 'test']),
-    (commands.add_project, ['{project_name}', '-m', 'test', '-d']),
-    (commands.list_projects, []),
-    (commands.remove_project, ['{project_name}']),
-    (commands.add_source, ['{source_name}', '-m', 'test']),
-    (commands.add_source, ['{source_name}', '-m', 'test',
-                           '--project-name', '{project_name}']),
-    (commands.list_sources, []),
-    (commands.list_sources, ['--project-name', '{project_name}']),
-    (commands.remove_source, ['{source_name}']),
-    (commands.remove_source, ['{source_name}', '--project-name', '{project_name}']),
-    (commands.add_source_column, ['{source_column_name}', '{source_column_type}',
-                                  '-m', 'test']),
-    (commands.add_source_column, ['{source_column_name}', '{source_column_type}',
-                                    '-m', 'test', '-n']),
-    (commands.add_source_column, ['{source_column_name}', '{source_column_type}',
-                                      '-m', 'test', '--project-name', '{project_name}']),
-    (commands.add_source_column, ['{source_column_name}', '{source_column_type}',
-                                    '-m', 'test', '-n', '--project-name', '{project_name}']),
-    (commands.list_source_columns, []),
-    (commands.list_source_columns, ['--project-name', '{project_name}']),
-    (commands.remove_source_column, ['{source_column_name}']),
-    (commands.remove_source_column, ['{source_column_name}', '--project-name', '{project_name}']),
+    CommandArgSpec(
+        command=commands.create_config,
+        args=["{projects_root}"],
+        excludes=((RESOURCE.config, ConfigurationExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.list_config,
+        args=[],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
+    ),
+    CommandArgSpec(
+        command=commands.update_config,
+        args=['--projects-root', '{projects_root}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
+    ),
+    CommandArgSpec(
+        command=commands.update_config,
+        args=['--default-project', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.update_config,
+        args=['--projects-root', '{projects_root}', '--default-project', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                    (RESOURCE.project, ProjectDoesNotExistError)),
+
+    ),
+    CommandArgSpec(
+        command=commands.update_config,
+        args=[],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
+        exception=NoConfigurationUpdateError,
+    ),
+    CommandArgSpec(
+        command=commands.add_project,
+        args=['{project_name}', '-m', 'test'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
+        excludes=((RESOURCE.project, ProjectExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.add_project,
+        args=['{project_name}', '-m', 'test', '-d'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
+        excludes=((RESOURCE.project, ProjectExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.list_projects,
+        args=[],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, NoProjectsExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.remove_project,
+        args=['{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.add_source,
+        args=['{source_name}', '-m', 'test'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError)),
+        excludes=((RESOURCE.source, SourceExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.add_source,
+        args=['{source_name}', '-m', 'test', '--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+        excludes=((RESOURCE.source, SourceExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.list_sources,
+        args=[],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError),
+                  (RESOURCE.source, NoSourcesExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.list_sources,
+        args=['--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError),
+                  (RESOURCE.source, NoSourcesExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.remove_source,
+        args=['{source_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError),
+                  (RESOURCE.source, SourceDoesNotExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.remove_source,
+        args=['{source_name}', '--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError),
+                  (RESOURCE.source, SourceDoesNotExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.add_source_column,
+        args=['{source_column_name}', 'str', '-n', '-m', 'test'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError)),
+        excludes=((RESOURCE.source_column, SourceColumnExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.add_source_column,
+        args=['{source_column_name}', 'str', '-m', 'test'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError)),
+        excludes=((RESOURCE.source_column, SourceColumnExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.add_source_column,
+        args=['{source_column_name}', 'str', '-n', '-m', 'test', '--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+        excludes=((RESOURCE.source_column, SourceColumnExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.add_source_column,
+        args=['{source_column_name}', 'str', '-m', 'test', '--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+        excludes=((RESOURCE.source_column, SourceColumnExistsError),),
+    ),
+    CommandArgSpec(
+        command=commands.list_source_columns,
+        args=[],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError)),
+    ),
+    CommandArgSpec(
+        command=commands.list_source_columns,
+        args=['--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+    ),
+    CommandArgSpec(
+        command=commands.remove_source_column,
+        args=['{source_column_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.default_project, NoDefaultProjectError)),
+        excludes=((RESOURCE.source_column, SourceColumnDoesNotExistError),),
+    ),
+    CommandArgSpec(
+        command=commands.remove_source_column,
+        args=['{source_column_name}', '--project-name', '{project_name}'],
+        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
+                  (RESOURCE.project, ProjectDoesNotExistError)),
+        excludes=((RESOURCE.source_column, SourceColumnDoesNotExistError),),
+    ),
 ])
-def good_commands(request, projects_root, project_name, source_name):
+def command_specs(request, projects_root, project_name, source_name):
     command, args = request.param
     format_args = {
         'projects_root': str(projects_root),
@@ -222,13 +382,3 @@ def good_commands(request, projects_root, project_name, source_name):
     }
     args = [args.format(**format_args) for args in args]
     return command, args
-
-
-
-
-
-@pytest.fixture(params=[
-
-
-
-@pytest.fixture(

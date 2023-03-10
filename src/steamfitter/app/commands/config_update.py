@@ -31,15 +31,15 @@ def main(projects_root: Union[str, None], default_project_name: Union[str, None]
     if projects_root is None and default_project_name is None:
         raise NoConfigurationUpdateError()
 
-    if default_project_name is not None and default_project_name not in config.projects:
-        raise ProjectDoesNotExistError(default_project_name)
-
     if projects_root is not None:
         projects_root, projects = setup_projects_root(projects_root)
         config.projects_root = str(projects_root)
         config.projects = projects
         config.default_project = ""
         click.echo(f"Projects root updated to {config.projects_root}.")
+
+    if default_project_name is not None and default_project_name not in config.projects:
+        raise ProjectDoesNotExistError(default_project_name)
 
     if default_project_name is not None:
         config.default_project = default_project_name

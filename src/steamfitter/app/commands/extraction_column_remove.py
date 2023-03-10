@@ -22,7 +22,6 @@ from steamfitter.lib.cli_tools import (
     logger,
     monitoring,
 )
-from steamfitter.lib.exceptions import SteamfitterException
 
 
 def main(
