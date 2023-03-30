@@ -27,7 +27,7 @@ def main(project_name: str):
     project_name = clean_string(project_name)
 
     if project_name not in config.projects:
-        raise ProjectDoesNotExistError(project_name)
+        raise ProjectDoesNotExistError(project_name=project_name)
 
     config.remove_project(project_name)
     ProjectDirectory.remove(config.projects_root / project_name)

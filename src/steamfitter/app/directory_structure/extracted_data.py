@@ -135,7 +135,7 @@ class ExtractedDataDirectory(Directory):
         self.update(
             {
                 "columns": {
-                    **self["columns"],
+                    **self["source_columns"],
                     source_column_name: (source_column_type, is_nullable, description),
                 },
             }

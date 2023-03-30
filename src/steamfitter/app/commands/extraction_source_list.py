@@ -24,9 +24,9 @@ def main(project_name: str):
     project_directory = get_project_directory(project_name)
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
     sources = extracted_data_directory["sources"]
-
+    import pdb; pdb.set_trace()
     if not sources:
-        raise NoSourcesExistError()
+        raise NoSourcesExistError(project_name=project_name)
 
     title = f"Sources for project {project_name}"
     click.echo(title)

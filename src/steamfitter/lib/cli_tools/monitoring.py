@@ -60,8 +60,10 @@ def handle_exceptions(
     def wrapped(*args: P.args, **kwargs: P.kwargs) -> T:
         try:
             return application_main(*args, **kwargs)
-        except (BdbQuit, KeyboardInterrupt, click.Abort):
-            raise
+        except (BdbQuit, KeyboardInterrupt, click.Abort) as e:
+            if hasattr(e, 'message'):
+                click.echo(e.message)
+            raise e
         except Exception as e:
             msg = f"Uncaught exception {e}"
             logger_.exception(msg)

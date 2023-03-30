@@ -1,16 +1,16 @@
 import click
 
-from steamfitter.app.configuration import Configuration
-
 from steamfitter.lib.exceptions import SteamfitterException
 
 
 class SteamfitterCLIException(SteamfitterException, click.Abort):
     """Base class for exceptions in the Steamfitter CLI."""
-    message: str = None
+    message: str = ""
 
     def __init__(self, *args, **kwargs):
-        self.message = self.message.format(*args, **kwargs)
+        assert not args, "SteamfitterCLIException does not accept positional arguments."
+        self.message = self.message.format(**kwargs)
+        super().__init__(self.message)
 
 
 class ConfigurationExistsError(SteamfitterCLIException):

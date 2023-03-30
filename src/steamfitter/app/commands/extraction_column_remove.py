@@ -35,7 +35,10 @@ def main(
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
 
     if source_column_name not in extracted_data_directory.source_columns:
-        raise SourceColumnDoesNotExistError(source_column_name, project_name)
+        raise SourceColumnDoesNotExistError(
+            project_name=project_name,
+            source_column_name=source_column_name,
+        )
 
     extracted_data_directory.remove_source_column(source_column_name)
 

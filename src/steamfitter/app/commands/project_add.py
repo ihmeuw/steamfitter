@@ -25,7 +25,7 @@ def main(project_name: str, description: str, set_default: bool):
     project_name = clean_string(project_name)
 
     if project_name in config.projects:
-        raise ProjectExistsError(project_name)
+        raise ProjectExistsError(project_name=project_name)
 
     config.add_project(project_name, set_default=set_default)
     ProjectDirectory.create(

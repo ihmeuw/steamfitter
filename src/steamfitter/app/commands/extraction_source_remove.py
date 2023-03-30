@@ -26,7 +26,7 @@ def main(source_name: str, project_name: str):
     extracted_data_dir = project_directory.data_directory.extracted_data_directory
 
     if source_name not in extracted_data_dir.sources:
-        raise SourceDoesNotExistError(source_name)
+        raise SourceDoesNotExistError(project_name=project_name, source_name=source_name)
 
     extracted_data_dir.remove_source(source_name=source_name)
 
