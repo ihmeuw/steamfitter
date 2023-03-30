@@ -32,9 +32,9 @@ def main(projects_root: Union[str, None], default_project_name: Union[str, None]
         raise NoConfigurationUpdateError()
 
     if projects_root is not None:
-        projects_root, projects = setup_projects_root(projects_root)
-        config.projects_root = str(projects_root)
-        config.projects = projects
+        projects_root = setup_projects_root(projects_root)
+        config.projects_root = str(projects_root.path)
+        config.projects = projects_root.projects
         config.default_project = ""
         click.echo(f"Projects root updated to {config.projects_root}.")
 

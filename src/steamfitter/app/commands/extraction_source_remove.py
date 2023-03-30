@@ -22,7 +22,6 @@ from steamfitter.lib.cli_tools import (
 def main(source_name: str, project_name: str):
     """Remove a data source from a project."""
     project_directory = get_project_directory(project_name)
-    source_name = clean_string(source_name)
     extracted_data_dir = project_directory.data_directory.extracted_data_directory
 
     if source_name not in extracted_data_dir.sources:

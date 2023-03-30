@@ -29,7 +29,6 @@ def main(
     project_name: Union[str, None],
 ):
     """Remove a source column from a project."""
-    source_column_name = clean_string(source_column_name).replace("-", "_")
     project_directory = get_project_directory(project_name)
     project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory

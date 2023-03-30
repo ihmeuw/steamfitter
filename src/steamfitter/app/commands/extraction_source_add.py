@@ -24,7 +24,6 @@ from steamfitter.lib.exceptions import SteamfitterException
 
 def main(source_name: str, project_name: Union[str, None], description: str):
     """Add a data source to a project."""
-    source_name = clean_string(source_name)
     project_directory = get_project_directory(project_name)
     project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory

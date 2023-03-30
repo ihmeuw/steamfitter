@@ -24,8 +24,6 @@ from steamfitter.lib.cli_tools import (
 def main(project_name: str):
     """Remove a project from the configuration."""
     config = get_configuration()
-    project_name = clean_string(project_name)
-
     if project_name not in config.projects:
         raise ProjectDoesNotExistError(project_name=project_name)
 

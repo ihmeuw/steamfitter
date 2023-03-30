@@ -22,7 +22,6 @@ from steamfitter.lib.cli_tools import (
 
 def main(project_name: str, description: str, set_default: bool):
     config = get_configuration()
-    project_name = clean_string(project_name)
 
     if project_name in config.projects:
         raise ProjectExistsError(project_name=project_name)

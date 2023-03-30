@@ -7,7 +7,7 @@ This module contains utility functions for the steamfitter CLI.
 
 """
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, NamedTuple, Union
 
 import click
 import inflection
@@ -30,7 +30,12 @@ def get_configuration():
     return Configuration()
 
 
-def setup_projects_root(projects_root: Union[str, Path]) -> Tuple[Path, List[str]]:
+class ProjectsRoot(NamedTuple):
+    path: Path
+    projects: List[str]
+
+
+def setup_projects_root(projects_root: Union[str, Path]) -> ProjectsRoot:
     projects_root = Path(projects_root).expanduser().resolve()
     projects = []
     if not projects_root.exists():
@@ -43,10 +48,18 @@ def setup_projects_root(projects_root: Union[str, Path]) -> Tuple[Path, List[str
                 click.echo(f"Found project {child.name} in {projects_root}. Adding it.")
                 projects.append(child.name)
 
-    return projects_root, projects
+    return ProjectsRoot(projects_root, projects)
 
 
-def get_project_directory(project_name: str = None) -> ProjectDirectory:
+def clean_string(raw_string: Union[str, None], dasherize=True) -> Union[str, None]:
+    if raw_string is not None:
+        raw_string = raw_string.replace(" ", "_").lower()
+        if dasherize:
+            raw_string = inflection.dasherize(raw_string)
+    return raw_string
+
+
+def get_project_name(project_name: str = None) -> str:
     config = get_configuration()
     project_name = project_name if project_name else config.default_project
 
@@ -55,10 +68,11 @@ def get_project_directory(project_name: str = None) -> ProjectDirectory:
     elif not project_name:
         raise NoDefaultProjectError()
     elif project_name not in config.projects:
-        raise ProjectDoesNotExistError(project_name)
+        raise ProjectDoesNotExistError(project_name=project_name)
 
+    return project_name
+
+
+def get_project_directory(project_name: str = None) -> ProjectDirectory:
+    config = get_configuration()
     return ProjectDirectory(config.projects_root / project_name)
-
-
-def clean_string(raw_string: str) -> str:
-    return inflection.dasherize(raw_string.replace(" ", "_").lower())

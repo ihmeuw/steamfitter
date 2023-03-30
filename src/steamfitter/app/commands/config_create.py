@@ -24,9 +24,9 @@ def main(projects_root: str):
     if Configuration.exists():
         raise ConfigurationExistsError()
 
-    projects_root, projects = setup_projects_root(projects_root)
-    config = Configuration.create(str(projects_root))
-    config.projects = projects
+    projects_root = setup_projects_root(projects_root)
+    config = Configuration.create(str(projects_root.path))
+    config.projects = projects_root.projects
     config.persist()
     click.echo(f"Configuration file written to {config.path}")
 
