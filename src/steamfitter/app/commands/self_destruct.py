@@ -18,7 +18,7 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def main():
+def run():
     configuration = get_configuration()
     click.confirm(
         "Are you sure you want to destroy all projects and configuration?",
@@ -32,10 +32,14 @@ def main():
     click.echo("All projects and configuration removed.")
 
 
-@click.command(hidden=True)
+def unrun(*_):
+    raise NotImplementedError("Cannot unrun self-destruct.")
+
+
+@click.command(hidden=True, name="self_destruct")
 @click_options.verbose_and_with_debugger
-def self_destruct(verbose: int, with_debugger: bool):
+def main(verbose: int, with_debugger: bool):
     """Destroy the configuration file and all projects managed by steamfitter."""
     configure_logging_to_terminal(verbose)
-    main_ = monitoring.handle_exceptions(main, logger, with_debugger)
-    main_()
+    main_ = monitoring.handle_exceptions(run, logger, with_debugger)
+    return main_()

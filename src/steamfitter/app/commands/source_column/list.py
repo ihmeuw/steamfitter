@@ -21,12 +21,13 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def main(project_name: Union[str, None]):
+def run(project_name: Union[str, None]) -> None:
     """List all source columns for a project."""
     project_directory = get_project_directory(project_name)
     project_name = project_directory["name"]
     extracted_data_directory = project_directory.data_directory.extracted_data_directory
     source_columns = extracted_data_directory["source_columns"]
+
     if source_columns:
         title = f"Source columns for project {project_name}"
         click.echo(title)
@@ -40,15 +41,19 @@ def main(project_name: Union[str, None]):
         click.echo("No source columns found.")
 
 
-@click.command()
+def unrun(*_) -> None:
+    pass
+
+
+@click.command(name="list_source_column")
 @options.project_name
 @click_options.verbose_and_with_debugger
-def list_source_columns(
+def main(
     project_name: Union[str, None],
     verbose: int,
     with_debugger: bool,
 ):
     """List all source columns for a project."""
     configure_logging_to_terminal(verbose)
-    main_ = monitoring.handle_exceptions(main, logger, with_debugger)
-    main_(project_name)
+    main_ = monitoring.handle_exceptions(run, logger, with_debugger)
+    return main_(project_name)

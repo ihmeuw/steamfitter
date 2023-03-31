@@ -7,10 +7,10 @@ An extracted data directory is a project subdirectory for storing data extracted
 external sources.
 
 """
+import shutil
 from pathlib import Path
 
-from git import Repo
-
+from steamfitter.app import git
 from steamfitter.app.directory_structure.version import VersionDirectory
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory, templates
@@ -56,10 +56,18 @@ class ExtractedDataDirectory(Directory):
     DEFAULT_EMPTY_ARGS = {
         ("source_count", lambda: 0),
         ("sources", lambda: {}),
-        ("columns", lambda: {}),
+        ("source_columns", lambda: {}),
     }
 
     SUBDIRECTORY_TYPES = (ExtractionSourceDirectory,)
+
+    @property
+    def sources(self):
+        return self["sources"].copy()
+
+    @property
+    def source_columns(self):
+        return self["source_columns"].copy()
 
     def add_source(self, source_name: str, description: str):
         """Add a source to the extracted data directory."""
@@ -83,13 +91,13 @@ class ExtractedDataDirectory(Directory):
         )
         self._metadata.persist()
 
-        repo = Repo(self.path)
-        repo.git.add(".")
-        repo.index.commit(f"Added source {source_name}.")
+        git.add_and_commit(self.path, f"Added source {source_name}.")
 
-    def remove_source(self, source_name: str):
+    def remove_source(
+        self, source_name: str, serialize: bool = False, destructive: bool = False
+    ) -> dict:
         """Remove a source from the extracted data directory."""
-        sources = self["sources"].copy()
+        sources = self.sources
         if source_name not in sources:
             raise SteamfitterException(f"Source {source_name} does not exist.")
 
@@ -99,20 +107,32 @@ class ExtractedDataDirectory(Directory):
             source_count=source_count,
             source_name=source_name,
         )
-        source_path.rmdir()
-        source_path.touch(mode=0o600)
+        if serialize:
+            source_directory_dict = ExtractionSourceDirectory(source_path, self).serialize()
+        else:
+            source_directory_dict = {}
+        shutil.rmtree(source_path, ignore_errors=True)
 
-        # Preserve the count so we can keep adding new sources to the end.
-        self.update(
-            {
-                "sources": self["sources"],
-            }
-        )
+        if destructive:
+            self.update(
+                {
+                    "source_count": self["source_count"] - 1,
+                    "sources": sources,
+                }
+            )
+        else:
+            source_path.touch(mode=0o600)
+            # Preserve the count so we can keep adding new sources to the end.
+            self.update(
+                {
+                    "sources": self["sources"],
+                }
+            )
+
         self._metadata.persist()
+        git.add_and_commit(self.path, f"Removed source {source_name}.")
 
-        repo = Repo(self.path)
-        repo.git.add(".")
-        repo.index.commit(f"Removed source {source_name}.")
+        return source_directory_dict
 
     def add_source_column(
         self,
@@ -122,29 +142,35 @@ class ExtractedDataDirectory(Directory):
         description: str,
     ):
         """Add a source column to the extracted data directory."""
-        if source_column_name in self["columns"].values():
+        if source_column_name in self.source_columns:
             raise SteamfitterException(f"Source column {source_column_name} already exists.")
         self.update(
             {
-                "columns": {
-                    **self["columns"],
+                "source_columns": {
+                    **self["source_columns"],
                     source_column_name: (source_column_type, is_nullable, description),
                 },
             }
         )
         self._metadata.persist()
 
-        repo = Repo(self.path)
-        repo.git.add(".")
-        repo.index.commit(f"Added source column {source_column_name}.")
+        git.add_and_commit(self.path, f"Added source column {source_column_name}.")
+
+    def remove_source_column(self, source_column_name: str):
+        """Remove a source column from the extracted data directory."""
+        source_columns = self.source_columns
+        if source_column_name not in source_columns:
+            raise SteamfitterException(f"Source column {source_column_name} does not exist.")
+
+        source_column_features = source_columns.pop(source_column_name)
+        self["source_columns"] = source_columns
+
+        self._metadata.persist()
+
+        git.add_and_commit(self.path, f"Removed source column {source_column_name}.")
+
+        return source_column_features
 
     @classmethod
     def add_initial_content(cls, path: Path, **kwargs):
-        repo = Repo.init(path)
-        gitignore_path = path / ".gitignore"
-        gitignore_path.touch(mode=0o664)
-        with open(gitignore_path, "w") as f:
-            f.write(templates.GITIGNORE)
-
-        repo.git.add(".")
-        repo.index.commit("Initial commit.")
+        git.init(path)

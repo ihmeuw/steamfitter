@@ -8,15 +8,36 @@ This module contains shared options for the steamfitter CLI.
 """
 import click
 
+from steamfitter.app.utilities import clean_string
+
+
+def clean_string_callback(ctx, param, value):
+    return clean_string(value)
+
+
+def clean_string_underscore_callback(ctx, param, value):
+    return clean_string(value, dasherize=False)
+
+
 project_name = click.option(
     "--project-name",
     "-P",
     default=None,
     help="The project to use. If not provided, the default project will be used.",
+    callback=clean_string_callback,
 )
-project_name_required = click.argument("project-name")
-source_name = click.argument("source-name")
-source_column_name = click.argument("source-column-name")
+project_name_required = click.argument(
+    "project-name",
+    callback=clean_string_callback,
+)
+source_name = click.argument(
+    "source-name",
+    callback=clean_string_callback,
+)
+source_column_name = click.argument(
+    "source-column-name",
+    callback=clean_string_underscore_callback,
+)
 source_column_type = click.argument("source-column-type")
 is_nullable = click.option(
     "--is-nullable",
@@ -31,7 +52,10 @@ description = click.option(
     help="A description of the entity.",
 )
 set_default = click.option(
-    "--set-default", "-d", is_flag=True, help="Whether to set the new entity as the default."
+    "--set-default",
+    "-d",
+    is_flag=True,
+    help="Whether to set the new entity as the default.",
 )
 projects_root = click.option(
     "--projects-root",
@@ -45,4 +69,12 @@ default_project_name = click.option(
     "-D",
     default=None,
     help="The name of the default project.",
+    callback=clean_string_callback,
+)
+serialize = click.option(
+    "--serialize",
+    "-s",
+    is_flag=True,
+    help="Whether to serialize a directory upon removal. Used for testing.",
+    hidden=True,
 )

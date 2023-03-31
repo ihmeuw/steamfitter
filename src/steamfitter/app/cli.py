@@ -17,7 +17,7 @@ def steamfitter():
     pass
 
 
-steamfitter.add_command(commands.self_destruct, name="self-destruct")
+steamfitter.add_command(commands.self_destruct.cli, name="self-destruct")
 
 
 ############################
@@ -31,8 +31,8 @@ def add():
     pass
 
 
-add.add_command(commands.add_project, name="project")
-add.add_command(commands.add_source, name="source")
+add.add_command(commands.add_project.cli, name="project")
+add.add_command(commands.add_source.cli, name="source")
 
 
 @steamfitter.group()
@@ -41,8 +41,8 @@ def remove():
     pass
 
 
-remove.add_command(commands.remove_project, name="project")
-remove.add_command(commands.remove_source, name="source")
+remove.add_command(commands.remove_project.cli, name="project")
+remove.add_command(commands.remove_source.cli, name="source")
 
 
 @steamfitter.group()
@@ -51,9 +51,9 @@ def list():
     pass
 
 
-list.add_command(commands.list_projects, name="project")
-list.add_command(commands.list_sources, name="source")
-list.add_command(commands.list_config, name="config")
+list.add_command(commands.list_project.cli, name="project")
+list.add_command(commands.list_source.cli, name="source")
+list.add_command(commands.list_config.cli, name="config")
 
 
 ##########################
@@ -67,9 +67,9 @@ def config():
     pass
 
 
-config.add_command(commands.create_config, name="create")
-config.add_command(commands.update_config, name="update")
-config.add_command(commands.list_config, name="list")
+config.add_command(commands.create_config.cli, name="create")
+config.add_command(commands.update_config.cli, name="update")
+config.add_command(commands.list_config.cli, name="list")
 
 
 @steamfitter.group()
@@ -78,9 +78,9 @@ def project():
     pass
 
 
-project.add_command(commands.add_project, name="add")
-project.add_command(commands.remove_project, name="remove")
-project.add_command(commands.list_projects, name="list")
+project.add_command(commands.add_project.cli, name="add")
+project.add_command(commands.remove_project.cli, name="remove")
+project.add_command(commands.list_project.cli, name="list")
 
 
 @steamfitter.group()
@@ -89,6 +89,6 @@ def source():
     pass
 
 
-source.add_command(commands.add_source, name="add")
-source.add_command(commands.remove_source, name="remove")
-source.add_command(commands.list_sources, name="list")
+source.add_command(commands.add_source.cli, name="add")
+source.add_command(commands.remove_source.cli, name="remove")
+source.add_command(commands.list_source.cli, name="list")

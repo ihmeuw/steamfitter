@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 from collections import defaultdict
 from importlib import import_module
+from itertools import chain
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Set, Tuple, Type, TypeVar
 
@@ -63,12 +64,8 @@ class Directory:
         for subdirectory in path.iterdir():
             if subdirectory.is_dir():
                 try:
-                    subdirectory_metadata = Metadata.from_directory(subdirectory)
-                    subdirectory_type = subdirectory_metadata["directory_type"]
-                    subdirectory_import_path = subdirectory_metadata["directory_class"]
-                    module_path, _, class_name = subdirectory_import_path.rpartition(".")
-                    subdirectory_class = getattr(import_module(module_path), class_name)
-                    subdirectory = subdirectory_class(subdirectory, parent=self)
+                    subdirectory = self._from_on_disk_directory(subdirectory, parent=self)
+                    subdirectory_type = subdirectory["directory_type"]
                     subdirectories[subdirectory_type].append(subdirectory)
                 except FileNotFoundError:
                     pass
@@ -105,6 +102,34 @@ class Directory:
 
     def __repr__(self):
         return f"{self.__class__.__name__}(path={self.path}, metadata={self.metadata})"
+
+    def serialize(self) -> Dict:
+        """Return a dictionary representation of the directory."""
+        return {
+            "metadata": self.metadata,
+            "subdirectories": [
+                subdirectory.serialize()
+                for subdirectory in chain(*self._subdirectories.values())
+            ],
+        }
+
+    @classmethod
+    def deserialize(cls, serialized_directory: Dict) -> DirectoryType:
+        """Return a directory instance from a serialized directory."""
+        metadata = serialized_directory["metadata"]
+
+        path = Path(metadata["root"])
+        if path.exists() and path.is_file():
+            # Should have been replaced with a tombstone file, remove
+            # first and recreate directory
+            path.unlink()
+        del metadata["root"]
+        mkdir(path)
+        Metadata.create(path, **metadata)
+        for subdirectory in serialized_directory["subdirectories"]:
+            cls.deserialize(subdirectory)
+        directory = cls._from_on_disk_directory(path)
+        return directory
 
     ##############################
     # On-disk directory creation #
@@ -205,3 +230,13 @@ class Directory:
     def add_initial_content(cls, path: Path, **kwargs):
         """Add initial content to a directory."""
         pass
+
+    @staticmethod
+    def _from_on_disk_directory(path: Path, parent: DirectoryType = None) -> DirectoryType:
+        """Return a directory instance from an on-disk directory."""
+        metadata = Metadata.from_directory(path)
+        directory_import_path = metadata["directory_class"]
+        module_path, _, class_name = directory_import_path.rpartition(".")
+        directory_class = getattr(import_module(module_path), class_name)
+        directory = directory_class(path, parent)
+        return directory
