@@ -1,17 +1,22 @@
 """
 ====================
-Create Configuration
+Create configuration
 ====================
 
-Configure steamfitter for the first time.
+Creates the steamfitter configuration file and builds a root directory for projects.
 
 """
+from pathlib import Path
+import shutil
+
 import click
 
 from steamfitter.app import options
 from steamfitter.app.configuration import Configuration
-from steamfitter.app.validation import ConfigurationExistsError
 from steamfitter.app.utilities import setup_projects_root
+from steamfitter.app.validation import (
+    ConfigurationExistsError,
+)
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -20,7 +25,7 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def main(projects_root: str):
+def run(projects_root: str) -> bool:
     if Configuration.exists():
         raise ConfigurationExistsError()
 
@@ -30,11 +35,22 @@ def main(projects_root: str):
     config.persist()
     click.echo(f"Configuration file written to {config.path}")
 
+    return projects_root.root_existed
 
-@click.command()
+
+def unrun(root_existed: bool, *_) -> None:
+    config = Configuration()
+    project_root = Path(config.projects_root)
+
+    config.remove()
+    if not root_existed:
+        shutil.rmtree(project_root)
+
+
+@click.command(name="create_config")
 @options.projects_root_required
 @click_options.verbose_and_with_debugger
-def create_config(
+def main(
     projects_root: str,
     verbose: int,
     with_debugger: bool,
@@ -44,11 +60,8 @@ def create_config(
     This will create a configuration file in the user's home directory and build a root
     directory for projects managed by steamfitter if one does not exist already.
 
-    Usage:
-
-         steamfitter configure /path/to/projects/root
-
     """
     configure_logging_to_terminal(verbose)
-    main_ = monitoring.handle_exceptions(main, logger, with_debugger)
-    main_(projects_root)
+    main_ = monitoring.handle_exceptions(run, logger, with_debugger)
+    return main_(projects_root)
+

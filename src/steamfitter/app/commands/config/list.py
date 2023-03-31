@@ -17,20 +17,24 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def main():
+def run() -> None:
     config = get_configuration()
     click.echo(f"Projects root: {config.projects_root}")
     click.echo(f"Default project: {config.default_project}")
     click.echo(f"Projects: {', '.join(config.projects)}")
 
 
-@click.command()
+def unrun(*_) -> None:
+    pass
+
+
+@click.command(name="list_config")
 @click_options.verbose_and_with_debugger
-def list_config(
+def main(
     verbose: int,
     with_debugger: bool,
 ):
     """Prints the status of the steamfitter configuration."""
     configure_logging_to_terminal(verbose)
-    main_ = monitoring.handle_exceptions(main, logger, with_debugger)
-    main_()
+    main_ = monitoring.handle_exceptions(run, logger, with_debugger)
+    return main_()

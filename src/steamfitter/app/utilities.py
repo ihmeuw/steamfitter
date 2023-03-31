@@ -33,22 +33,26 @@ def get_configuration():
 class ProjectsRoot(NamedTuple):
     path: Path
     projects: List[str]
+    root_existed: bool
 
 
 def setup_projects_root(projects_root: Union[str, Path]) -> ProjectsRoot:
     projects_root = Path(projects_root).expanduser().resolve()
     projects = []
-    if not projects_root.exists():
-        click.echo(f"Projects root {projects_root} does not exist. Creating it.")
-        mkdir(projects_root, parents=True)
-    else:
+
+    if projects_root.exists():
         click.echo(f"Projects root {projects_root} already exists. Using it.")
         for child in projects_root.iterdir():
             if child.is_dir() and ProjectDirectory.is_directory_type(child):
                 click.echo(f"Found project {child.name} in {projects_root}. Adding it.")
                 projects.append(child.name)
+        root_existed = True
+    else:
+        click.echo(f"Projects root {projects_root} does not exist. Creating it.")
+        mkdir(projects_root, parents=True)
+        root_existed = False
 
-    return ProjectsRoot(projects_root, projects)
+    return ProjectsRoot(projects_root, projects, root_existed)
 
 
 def clean_string(raw_string: Union[str, None], dasherize=True) -> Union[str, None]:
@@ -74,5 +78,6 @@ def get_project_name(project_name: str = None) -> str:
 
 
 def get_project_directory(project_name: str = None) -> ProjectDirectory:
+    project_name = get_project_name(project_name)
     config = get_configuration()
     return ProjectDirectory(config.projects_root / project_name)

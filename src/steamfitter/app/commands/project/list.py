@@ -18,7 +18,7 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def main():
+def run() -> None:
     config = get_configuration()
 
     if not config.projects:
@@ -30,13 +30,17 @@ def main():
         click.echo(f"{project_number+1:<8}: {project_name}")
 
 
-@click.command()
+def unrun(*_) -> None:
+    pass
+
+
+@click.command(name="list_project")
 @click_options.verbose_and_with_debugger
-def list_projects(
+def main(
     verbose: int,
     with_debugger: bool,
 ):
     """Prints the status of the steamfitter configuration."""
     configure_logging_to_terminal(verbose)
-    main_ = monitoring.handle_exceptions(main, logger, with_debugger)
-    main_()
+    main_ = monitoring.handle_exceptions(run, logger, with_debugger)
+    return main_()

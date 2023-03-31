@@ -54,7 +54,10 @@ description = click.option(
     help="A description of the entity.",
 )
 set_default = click.option(
-    "--set-default", "-d", is_flag=True, help="Whether to set the new entity as the default."
+    "--set-default",
+    "-d",
+    is_flag=True,
+    help="Whether to set the new entity as the default.",
 )
 projects_root = click.option(
     "--projects-root",
@@ -69,4 +72,11 @@ default_project_name = click.option(
     default=None,
     help="The name of the default project.",
     callback=clean_string_callback,
+)
+serialize = click.option(
+    "--serialize",
+    "-s",
+    is_flag=True,
+    help="Whether to serialize a directory upon removal. Used for testing.",
+    hidden=True,
 )
