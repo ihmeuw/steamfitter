@@ -61,7 +61,7 @@ def handle_exceptions(
         try:
             return application_main(*args, **kwargs)
         except (BdbQuit, KeyboardInterrupt, click.Abort) as e:
-            if hasattr(e, 'message'):
+            if hasattr(e, "message"):
                 click.echo(e.message)
             raise e
         except Exception as e:

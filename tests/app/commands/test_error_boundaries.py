@@ -1,5 +1,5 @@
 import itertools
-from typing import Tuple, Type, List, NamedTuple
+from typing import List, NamedTuple, Tuple, Type
 
 import pytest
 
@@ -7,24 +7,25 @@ from steamfitter.app import commands
 from steamfitter.app.configuration import Configuration
 from steamfitter.app.testing import invoke_cli
 from steamfitter.app.validation import (
-    SteamfitterCLIException,
-    ConfigurationExistsError,
     ConfigurationDoesNotExistError,
+    ConfigurationExistsError,
     NoConfigurationUpdateError,
-    ProjectExistsError,
-    ProjectDoesNotExistError,
     NoDefaultProjectError,
     NoProjectsExistError,
-    SourceExistsError,
-    SourceDoesNotExistError,
     NoSourcesExistError,
-    SourceColumnExistsError,
+    ProjectDoesNotExistError,
+    ProjectExistsError,
     SourceColumnDoesNotExistError,
+    SourceColumnExistsError,
+    SourceDoesNotExistError,
+    SourceExistsError,
+    SteamfitterCLIException,
 )
 
 
 class __Resource(NamedTuple):
     """Enumeration of possible steamfitter environment resources."""
+
     config: str
     project: str
     default_project: str
@@ -59,7 +60,9 @@ class EnvironmentConfiguration:
         assert project >= source, "Project must exist if source exists."
         assert source >= multi_source, "Source must exist if multi-source exists."
         assert project >= source_column, "Project must exist if source column exists."
-        assert source_column >= multi_source_column, "Source column must exist if multi-source column exists."
+        assert (
+            source_column >= multi_source_column
+        ), "Source column must exist if multi-source column exists."
 
         self.config = config
         self.project = project
@@ -99,58 +102,110 @@ class EnvironmentConfiguration:
 VALID_ENVIRONMENT_CONFIGURATIONS = [
     EnvironmentConfiguration(),
     EnvironmentConfiguration(config=True),
-
     EnvironmentConfiguration(config=True, project=True),
     EnvironmentConfiguration(config=True, project=True, default_project=True),
-
     EnvironmentConfiguration(config=True, project=True, source=True),
     EnvironmentConfiguration(config=True, project=True, source=True, default_project=True),
     EnvironmentConfiguration(config=True, project=True, multi_source=True),
-    EnvironmentConfiguration(config=True, project=True, multi_source=True, default_project=True),
-
+    EnvironmentConfiguration(
+        config=True, project=True, multi_source=True, default_project=True
+    ),
     EnvironmentConfiguration(config=True, project=True, source_column=True),
-    EnvironmentConfiguration(config=True, project=True, source_column=True, default_project=True),
+    EnvironmentConfiguration(
+        config=True, project=True, source_column=True, default_project=True
+    ),
     EnvironmentConfiguration(config=True, project=True, multi_source_column=True),
-    EnvironmentConfiguration(config=True, project=True, multi_source_column=True, default_project=True),
-
+    EnvironmentConfiguration(
+        config=True, project=True, multi_source_column=True, default_project=True
+    ),
     EnvironmentConfiguration(config=True, project=True, source=True, source_column=True),
-    EnvironmentConfiguration(config=True, project=True, source=True, source_column=True, default_project=True),
-    EnvironmentConfiguration(config=True, project=True, source=True, multi_source_column=True),
-    EnvironmentConfiguration(config=True, project=True, source=True, multi_source_column=True, default_project=True),
-
-    EnvironmentConfiguration(config=True, project=True, multi_source=True, source_column=True),
-    EnvironmentConfiguration(config=True, project=True, multi_source=True, source_column=True, default_project=True),
-    EnvironmentConfiguration(config=True, project=True, multi_source=True, multi_source_column=True),
-    EnvironmentConfiguration(config=True, project=True, multi_source=True, multi_source_column=True, default_project=True),
-
+    EnvironmentConfiguration(
+        config=True, project=True, source=True, source_column=True, default_project=True
+    ),
+    EnvironmentConfiguration(
+        config=True, project=True, source=True, multi_source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True, project=True, source=True, multi_source_column=True, default_project=True
+    ),
+    EnvironmentConfiguration(
+        config=True, project=True, multi_source=True, source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True, project=True, multi_source=True, source_column=True, default_project=True
+    ),
+    EnvironmentConfiguration(
+        config=True, project=True, multi_source=True, multi_source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True,
+        project=True,
+        multi_source=True,
+        multi_source_column=True,
+        default_project=True,
+    ),
     EnvironmentConfiguration(config=True, multi_project=True),
     EnvironmentConfiguration(config=True, multi_project=True, default_project=True),
-
     EnvironmentConfiguration(config=True, multi_project=True, source=True),
-    EnvironmentConfiguration(config=True, multi_project=True, source=True, default_project=True),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, source=True, default_project=True
+    ),
     EnvironmentConfiguration(config=True, multi_project=True, multi_source=True),
-    EnvironmentConfiguration(config=True, multi_project=True, multi_source=True, default_project=True),
-
+    EnvironmentConfiguration(
+        config=True, multi_project=True, multi_source=True, default_project=True
+    ),
     EnvironmentConfiguration(config=True, multi_project=True, source_column=True),
-    EnvironmentConfiguration(config=True, multi_project=True, source_column=True, default_project=True),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, source_column=True, default_project=True
+    ),
     EnvironmentConfiguration(config=True, multi_project=True, multi_source_column=True),
-    EnvironmentConfiguration(config=True, multi_project=True, multi_source_column=True, default_project=True),
-
-    EnvironmentConfiguration(config=True, multi_project=True, source=True, source_column=True),
-    EnvironmentConfiguration(config=True, multi_project=True, source=True, source_column=True, default_project=True),
-    EnvironmentConfiguration(config=True, multi_project=True, source=True, multi_source_column=True),
-    EnvironmentConfiguration(config=True, multi_project=True, source=True, multi_source_column=True, default_project=True),
-
-    EnvironmentConfiguration(config=True, multi_project=True, multi_source=True, source_column=True),
-    EnvironmentConfiguration(config=True, multi_project=True, multi_source=True, source_column=True, default_project=True),
-    EnvironmentConfiguration(config=True, multi_project=True, multi_source=True, multi_source_column=True),
-    EnvironmentConfiguration(config=True, multi_project=True, multi_source=True, multi_source_column=True, default_project=True),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, multi_source_column=True, default_project=True
+    ),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, source=True, source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, source=True, source_column=True, default_project=True
+    ),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, source=True, multi_source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True,
+        multi_project=True,
+        source=True,
+        multi_source_column=True,
+        default_project=True,
+    ),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, multi_source=True, source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True,
+        multi_project=True,
+        multi_source=True,
+        source_column=True,
+        default_project=True,
+    ),
+    EnvironmentConfiguration(
+        config=True, multi_project=True, multi_source=True, multi_source_column=True
+    ),
+    EnvironmentConfiguration(
+        config=True,
+        multi_project=True,
+        multi_source=True,
+        multi_source_column=True,
+        default_project=True,
+    ),
 ]
 
 
-@pytest.fixture(params=VALID_ENVIRONMENT_CONFIGURATIONS,
-                ids=[str(e) for e in VALID_ENVIRONMENT_CONFIGURATIONS],
-                scope="session")
+@pytest.fixture(
+    params=VALID_ENVIRONMENT_CONFIGURATIONS,
+    ids=[str(e) for e in VALID_ENVIRONMENT_CONFIGURATIONS],
+    scope="session",
+)
 def environment_configuration(request):
     return request.param
 
@@ -200,9 +255,6 @@ def source_column_name():
     return "test_source_column"
 
 
-
-
-
 @pytest.fixture(autouse=True, scope="session")
 def config_exists(environment_configuration, configuration_with_patched_path, projects_root):
     if environment_configuration.config:
@@ -216,8 +268,8 @@ def projects(environment_configuration, project_name, config_exists):
     if not environment_configuration.project:
         return []
 
-    default = ['-d'] if environment_configuration.default_project else []
-    project_suffix = ['', '1', '2'] if environment_configuration.multi_project else ['']
+    default = ["-d"] if environment_configuration.default_project else []
+    project_suffix = ["", "1", "2"] if environment_configuration.multi_project else [""]
     args = [[f"{project_name}{s}", "-m", "test"] for s in project_suffix]
     args[0] += default
 
@@ -234,10 +286,11 @@ def sources(environment_configuration, source_name, projects):
     if not environment_configuration.source:
         return []
 
-    source_suffix = ['', '1', '2'] if environment_configuration.multi_source else ['']
-    args = [[f"{source_name}{s}", "-m", "test", '-P', project]
-            for s, project
-            in itertools.product(source_suffix, projects)]
+    source_suffix = ["", "1", "2"] if environment_configuration.multi_source else [""]
+    args = [
+        [f"{source_name}{s}", "-m", "test", "-P", project]
+        for s, project in itertools.product(source_suffix, projects)
+    ]
 
     sources = []
     for add_source_args in args:
@@ -253,12 +306,14 @@ def columns(environment_configuration, source_column_name, projects):
         return []
 
     column_types = (
-        ['int', 'float', 'str'] if environment_configuration.multi_source_column else ['int']
+        ["int", "float", "str"] if environment_configuration.multi_source_column else ["int"]
     )
-    is_nullable = ['', '-n', '-n']
+    is_nullable = ["", "-n", "-n"]
     col_names = [source_column_name, f"{source_column_name}1", f"{source_column_name}2"]
-    args = [[col_names[i], column_types[i], is_nullable[i], '-P', project, '-m', 'test']
-            for i, project in itertools.product(range(len(column_types)), projects)]
+    args = [
+        [col_names[i], column_types[i], is_nullable[i], "-P", project, "-m", "test"]
+        for i, project in itertools.product(range(len(column_types)), projects)
+    ]
 
     columns = []
     for add_column_args in args:
@@ -293,6 +348,7 @@ class CommandArgSpec(NamedTuple):
         is expected to execute without error.
 
     """
+
     command: commands.SteamfitterCommand
     args: List[str]
     requires: Tuple[Tuple[str, Type[SteamfitterCLIException]], ...] = tuple()
@@ -317,167 +373,222 @@ COMMAND_ARG_SPECS = [
     ),
     CommandArgSpec(
         command=commands.update_config,
-        args=['--projects-root', '{projects_root}'],
+        args=["--projects-root", "{projects_root}"],
         requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
-        extra_id='root',
+        extra_id="root",
     ),
     CommandArgSpec(
         command=commands.update_config,
-        args=['--default-project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, ProjectDoesNotExistError)),
-        extra_id='default',
+        args=["--default-project-name", "{project_name}"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, ProjectDoesNotExistError),
+        ),
+        extra_id="default",
     ),
     CommandArgSpec(
         command=commands.update_config,
-        args=['--projects-root', '{projects_root}', '--default-project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, ProjectDoesNotExistError)),
-        extra_id='both',
+        args=[
+            "--projects-root",
+            "{projects_root}",
+            "--default-project-name",
+            "{project_name}",
+        ],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, ProjectDoesNotExistError),
+        ),
+        extra_id="both",
     ),
     CommandArgSpec(
         command=commands.update_config,
         args=[],
         requires=(),
         exception=NoConfigurationUpdateError,
-        extra_id='no_config',
+        extra_id="no_config",
     ),
     CommandArgSpec(
         command=commands.add_project,
-        args=['{project_name}', '-m', 'test'],
+        args=["{project_name}", "-m", "test"],
         requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
         excludes=((RESOURCE.project, ProjectExistsError),),
     ),
     CommandArgSpec(
         command=commands.add_project,
-        args=['{project_name}', '-m', 'test', '-d'],
+        args=["{project_name}", "-m", "test", "-d"],
         requires=((RESOURCE.config, ConfigurationDoesNotExistError),),
         excludes=((RESOURCE.project, ProjectExistsError),),
-        extra_id='default',
+        extra_id="default",
     ),
     CommandArgSpec(
         command=commands.list_project,
         args=[],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError)),
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+        ),
     ),
     CommandArgSpec(
         command=commands.remove_project,
-        args=['{project_name}', '-s'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, ProjectDoesNotExistError)),
+        args=["{project_name}", "-s"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, ProjectDoesNotExistError),
+        ),
     ),
     CommandArgSpec(
         command=commands.add_source,
-        args=['{source_name}', '-m', 'test'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError)),
+        args=["{source_name}", "-m", "test"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+        ),
         excludes=((RESOURCE.source, SourceExistsError),),
     ),
     CommandArgSpec(
         command=commands.add_source,
-        args=['{source_name}', '-m', 'test', '--project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError)),
+        args=["{source_name}", "-m", "test", "--project-name", "{project_name}"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+        ),
         excludes=((RESOURCE.source, SourceExistsError),),
-        extra_id='project',
+        extra_id="project",
     ),
     CommandArgSpec(
         command=commands.list_source,
         args=[],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError),
-                  (RESOURCE.source, NoSourcesExistError)),
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+            (RESOURCE.source, NoSourcesExistError),
+        ),
     ),
     CommandArgSpec(
         command=commands.list_source,
-        args=['--project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.source, NoSourcesExistError)),
-        extra_id='project',
+        args=["--project-name", "{project_name}"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.source, NoSourcesExistError),
+        ),
+        extra_id="project",
     ),
     CommandArgSpec(
         command=commands.remove_source,
-        args=['{source_name}', '-s'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError),
-                  (RESOURCE.source, SourceDoesNotExistError)),
+        args=["{source_name}", "-s"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+            (RESOURCE.source, SourceDoesNotExistError),
+        ),
     ),
     CommandArgSpec(
         command=commands.remove_source,
-        args=['{source_name}', '--project-name', '{project_name}', '-s'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.source, SourceDoesNotExistError)),
-        extra_id='project',
+        args=["{source_name}", "--project-name", "{project_name}", "-s"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.source, SourceDoesNotExistError),
+        ),
+        extra_id="project",
     ),
     CommandArgSpec(
         command=commands.add_source_column,
-        args=['{source_column_name}', 'str', '-m', 'test'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError)),
+        args=["{source_column_name}", "str", "-m", "test"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+        ),
         excludes=((RESOURCE.source_column, SourceColumnExistsError),),
     ),
     CommandArgSpec(
         command=commands.add_source_column,
-        args=['{source_column_name}', 'str', '-n', '-m', 'test'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError)),
+        args=["{source_column_name}", "str", "-n", "-m", "test"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+        ),
         excludes=((RESOURCE.source_column, SourceColumnExistsError),),
-        extra_id='nullable'
+        extra_id="nullable",
     ),
     CommandArgSpec(
         command=commands.add_source_column,
-        args=['{source_column_name}', 'str', '-m', 'test', '--project-name',
-              '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError)),
+        args=[
+            "{source_column_name}",
+            "str",
+            "-m",
+            "test",
+            "--project-name",
+            "{project_name}",
+        ],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+        ),
         excludes=((RESOURCE.source_column, SourceColumnExistsError),),
-        extra_id='project'
+        extra_id="project",
     ),
     CommandArgSpec(
         command=commands.add_source_column,
-        args=['{source_column_name}', 'str', '-n', '-m', 'test', '--project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError)),
+        args=[
+            "{source_column_name}",
+            "str",
+            "-n",
+            "-m",
+            "test",
+            "--project-name",
+            "{project_name}",
+        ],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+        ),
         excludes=((RESOURCE.source_column, SourceColumnExistsError),),
-        extra_id='nullable_project'
+        extra_id="nullable_project",
     ),
     CommandArgSpec(
         command=commands.list_source_column,
         args=[],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError)),
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+        ),
     ),
     CommandArgSpec(
         command=commands.list_source_column,
-        args=['--project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError)),
-        extra_id='project',
+        args=["--project-name", "{project_name}"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+        ),
+        extra_id="project",
     ),
     CommandArgSpec(
         command=commands.remove_source_column,
-        args=['{source_column_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.default_project, NoDefaultProjectError),
-                  (RESOURCE.source_column, SourceColumnDoesNotExistError),),
+        args=["{source_column_name}"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.default_project, NoDefaultProjectError),
+            (RESOURCE.source_column, SourceColumnDoesNotExistError),
+        ),
     ),
     CommandArgSpec(
         command=commands.remove_source_column,
-        args=['{source_column_name}', '--project-name', '{project_name}'],
-        requires=((RESOURCE.config, ConfigurationDoesNotExistError),
-                  (RESOURCE.project, NoProjectsExistError),
-                  (RESOURCE.source_column, SourceColumnDoesNotExistError),),
-        extra_id='project',
+        args=["{source_column_name}", "--project-name", "{project_name}"],
+        requires=(
+            (RESOURCE.config, ConfigurationDoesNotExistError),
+            (RESOURCE.project, NoProjectsExistError),
+            (RESOURCE.source_column, SourceColumnDoesNotExistError),
+        ),
+        extra_id="project",
     ),
 ]
 
@@ -496,10 +607,10 @@ def command_specs(
     command = spec.command
     args = spec.args
     format_args = {
-        'projects_root': str(projects_root),
-        'project_name': project_name,
-        'source_name': source_name,
-        'source_column_name': source_column_name,
+        "projects_root": str(projects_root),
+        "project_name": project_name,
+        "source_name": source_name,
+        "source_column_name": source_column_name,
     }
     args = [args.format(**format_args) for args in args]
 
@@ -516,7 +627,9 @@ def command_specs(
     return command, args, expected_error
 
 
-def test_error_boundaries(environment_configuration, command_specs, projects_root, environment_root, capsys):
+def test_error_boundaries(
+    environment_configuration, command_specs, projects_root, environment_root, capsys
+):
     command, args_, expected_error = command_specs
 
     # with capsys.disabled():
@@ -525,8 +638,11 @@ def test_error_boundaries(environment_configuration, command_specs, projects_roo
 
     if expected_error is None:
         result = invoke_cli(command, args_)
-        return_value = (result.return_value if isinstance(result.return_value, tuple)
-                        else (result.return_value,))
+        return_value = (
+            result.return_value
+            if isinstance(result.return_value, tuple)
+            else (result.return_value,)
+        )
         command.unrunner(*return_value)
 
     else:

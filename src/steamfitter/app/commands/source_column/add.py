@@ -13,9 +13,7 @@ import click
 
 from steamfitter.app import options
 from steamfitter.app.utilities import get_project_directory
-from steamfitter.app.validation import (
-    SourceColumnExistsError,
-)
+from steamfitter.app.validation import SourceColumnExistsError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -80,4 +78,6 @@ def main(
     """Adds a source column to the steamfitter managed project."""
     configure_logging_to_terminal(verbose)
     main_ = monitoring.handle_exceptions(run, logger, with_debugger)
-    return main_(source_column_name, source_column_type, is_nullable, description, project_name)
+    return main_(
+        source_column_name, source_column_type, is_nullable, description, project_name
+    )

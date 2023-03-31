@@ -9,6 +9,7 @@ Removes a source from a steamfitter managed project.
 import click
 
 from steamfitter.app import options
+from steamfitter.app.directory_structure import ExtractionSourceDirectory
 from steamfitter.app.utilities import get_project_directory
 from steamfitter.app.validation import SourceDoesNotExistError
 from steamfitter.lib.cli_tools import (
@@ -17,7 +18,6 @@ from steamfitter.lib.cli_tools import (
     logger,
     monitoring,
 )
-from steamfitter.app.directory_structure import ExtractionSourceDirectory
 
 
 def run(source_name: str, project_name: str, serialize: bool):

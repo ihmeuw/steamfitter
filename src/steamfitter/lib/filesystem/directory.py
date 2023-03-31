@@ -108,8 +108,8 @@ class Directory:
         return {
             "metadata": self.metadata,
             "subdirectories": [
-                subdirectory.serialize() for subdirectory
-                in chain(*self._subdirectories.values())
+                subdirectory.serialize()
+                for subdirectory in chain(*self._subdirectories.values())
             ],
         }
 
@@ -130,7 +130,6 @@ class Directory:
             cls.deserialize(subdirectory)
         directory = cls._from_on_disk_directory(path)
         return directory
-
 
     ##############################
     # On-disk directory creation #

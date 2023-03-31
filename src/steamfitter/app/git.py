@@ -1,8 +1,8 @@
 from pathlib import Path
+
 from git import Repo
 
 from steamfitter.lib.filesystem import templates
-
 
 GIT_ENABLED = True
 

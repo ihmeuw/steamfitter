@@ -7,11 +7,11 @@ An extracted data directory is a project subdirectory for storing data extracted
 external sources.
 
 """
-from pathlib import Path
 import shutil
+from pathlib import Path
 
-from steamfitter.app.directory_structure.version import VersionDirectory
 from steamfitter.app import git
+from steamfitter.app.directory_structure.version import VersionDirectory
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory, templates
 
@@ -94,10 +94,7 @@ class ExtractedDataDirectory(Directory):
         git.add_and_commit(self.path, f"Added source {source_name}.")
 
     def remove_source(
-        self,
-        source_name: str,
-        serialize: bool = False,
-        destructive: bool = False
+        self, source_name: str, serialize: bool = False, destructive: bool = False
     ) -> dict:
         """Remove a source from the extracted data directory."""
         sources = self.sources
@@ -117,16 +114,20 @@ class ExtractedDataDirectory(Directory):
         shutil.rmtree(source_path, ignore_errors=True)
 
         if destructive:
-            self.update({
-                "source_count": self["source_count"] - 1,
-                "sources": sources,
-            })
+            self.update(
+                {
+                    "source_count": self["source_count"] - 1,
+                    "sources": sources,
+                }
+            )
         else:
             source_path.touch(mode=0o600)
             # Preserve the count so we can keep adding new sources to the end.
-            self.update({
-                "sources": self["sources"],
-            })
+            self.update(
+                {
+                    "sources": self["sources"],
+                }
+            )
 
         self._metadata.persist()
         git.add_and_commit(self.path, f"Removed source {source_name}.")

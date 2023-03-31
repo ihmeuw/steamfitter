@@ -6,8 +6,8 @@ Update Configuration
 Update the steamfitter configuration.
 
 """
-from pathlib import Path
 import shutil
+from pathlib import Path
 from typing import Tuple, Union
 
 import click

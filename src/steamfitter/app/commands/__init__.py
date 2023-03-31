@@ -1,29 +1,19 @@
-from typing import (
-    Callable as _Callable,
-    NamedTuple as _NamedTuple
-)
+from typing import Callable as _Callable
+from typing import NamedTuple as _NamedTuple
 
-from steamfitter.app.commands.config import (
-    create as _create_config,
-    list as _list_config,
-    update as _update_config,
-)
-from steamfitter.app.commands.project import (
-    add as _add_project,
-    list as _list_project,
-    remove as _remove_project,
-)
-from steamfitter.app.commands.source import (
-    add as _add_source,
-    list as _list_source,
-    remove as _remove_source,
-)
-from steamfitter.app.commands.source_column import (
-    add as _add_source_column,
-    list as _list_source_column,
-    remove as _remove_source_column,
-)
 from steamfitter.app.commands import self_destruct as _self_destruct
+from steamfitter.app.commands.config import create as _create_config
+from steamfitter.app.commands.config import list as _list_config
+from steamfitter.app.commands.config import update as _update_config
+from steamfitter.app.commands.project import add as _add_project
+from steamfitter.app.commands.project import list as _list_project
+from steamfitter.app.commands.project import remove as _remove_project
+from steamfitter.app.commands.source import add as _add_source
+from steamfitter.app.commands.source import list as _list_source
+from steamfitter.app.commands.source import remove as _remove_source
+from steamfitter.app.commands.source_column import add as _add_source_column
+from steamfitter.app.commands.source_column import list as _list_source_column
+from steamfitter.app.commands.source_column import remove as _remove_source_column
 
 
 class SteamfitterCommand(_NamedTuple):

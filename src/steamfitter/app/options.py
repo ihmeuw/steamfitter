@@ -38,9 +38,7 @@ source_column_name = click.argument(
     "source-column-name",
     callback=clean_string_underscore_callback,
 )
-source_column_type = click.argument(
-    "source-column-type"
-)
+source_column_type = click.argument("source-column-type")
 is_nullable = click.option(
     "--is-nullable",
     "-n",

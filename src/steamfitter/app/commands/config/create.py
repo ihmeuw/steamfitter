@@ -6,17 +6,15 @@ Create configuration
 Creates the steamfitter configuration file and builds a root directory for projects.
 
 """
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import click
 
 from steamfitter.app import options
 from steamfitter.app.configuration import Configuration
 from steamfitter.app.utilities import setup_projects_root
-from steamfitter.app.validation import (
-    ConfigurationExistsError,
-)
+from steamfitter.app.validation import ConfigurationExistsError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -64,4 +62,3 @@ def main(
     configure_logging_to_terminal(verbose)
     main_ = monitoring.handle_exceptions(run, logger, with_debugger)
     return main_(projects_root)
-

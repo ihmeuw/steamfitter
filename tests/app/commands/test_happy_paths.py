@@ -12,9 +12,9 @@ import pytest
 from steamfitter.app import commands
 from steamfitter.app.configuration import Configuration
 from steamfitter.app.directory_structure import ProjectDirectory
+from steamfitter.app.testing import invoke_cli
 from steamfitter.app.utilities import get_configuration
 from steamfitter.lib.filesystem import ARCHIVE_POLICIES, SteamfitterDirectoryError
-from steamfitter.app.testing import invoke_cli
 
 
 @pytest.fixture()
@@ -35,9 +35,6 @@ def config_path(tmp_path):
 @pytest.fixture(scope="session")
 def project_name():
     return "test-project"
-
-
-
 
 
 @pytest.fixture(autouse=True)

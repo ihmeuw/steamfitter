@@ -13,9 +13,7 @@ import click
 
 from steamfitter.app import options
 from steamfitter.app.utilities import get_project_directory
-from steamfitter.app.validation import (
-    SourceColumnDoesNotExistError,
-)
+from steamfitter.app.validation import SourceColumnDoesNotExistError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,

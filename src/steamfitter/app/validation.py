@@ -5,6 +5,7 @@ from steamfitter.lib.exceptions import SteamfitterException
 
 class SteamfitterCLIException(SteamfitterException, click.Abort):
     """Base class for exceptions in the Steamfitter CLI."""
+
     message: str = ""
 
     def __init__(self, *args, **kwargs):
@@ -66,4 +67,3 @@ class SourceColumnDoesNotExistError(SteamfitterCLIException):
 
 class NoSourceColumnsExistError(SteamfitterCLIException):
     message = "No source columns exist in project {project_name}."
-

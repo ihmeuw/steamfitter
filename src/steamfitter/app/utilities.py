@@ -13,14 +13,13 @@ import click
 import inflection
 
 from steamfitter.app.configuration import Configuration
+from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.app.validation import (
     ConfigurationDoesNotExistError,
-    ProjectDoesNotExistError,
     NoDefaultProjectError,
     NoProjectsExistError,
+    ProjectDoesNotExistError,
 )
-
-from steamfitter.app.directory_structure import ProjectDirectory
 from steamfitter.lib.shell_tools import mkdir
 
 
