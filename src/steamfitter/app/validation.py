@@ -55,15 +55,3 @@ class SourceDoesNotExistError(SteamfitterCLIException):
 
 class NoSourcesExistError(SteamfitterCLIException):
     message = "No sources exist in project {project_name}."
-
-
-class SourceColumnExistsError(SteamfitterCLIException):
-    message = "Source column {source_column_name} already exists in project {project_name}."
-
-
-class SourceColumnDoesNotExistError(SteamfitterCLIException):
-    message = "Source column {source_column_name} does not exist in project {project_name}."
-
-
-class NoSourceColumnsExistError(SteamfitterCLIException):
-    message = "No source columns exist in project {project_name}."

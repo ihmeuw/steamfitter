@@ -27,13 +27,13 @@ class Extractor:
         spec.loader.exec_module(self._extractor)
 
     def extract(self):
-        self._extractor.extract(self._root)
+        self._extractor.extract_data(self._root)
 
     def format(self):
-        self._extractor.format(self._root)
+        self._extractor.format_data(self._root)
 
     def validate(self):
-        self._extractor.validate(self._root)
+        self._extractor.validate_data(self._root)
 
     def run(self):
         self.extract()
@@ -52,8 +52,8 @@ class ExtractionSourceVersionDirectory(VersionDirectory):
     def extractor_path(self) -> Path:
         return self.path / "extract.py"
 
-    def get_extractor(self):
-        return importlib.import_module(self.extractor_path)
+    def get_extractor(self) -> Extractor:
+        return Extractor(self.extractor_path)
 
 
 class ExtractionSourceDirectory(Directory):
@@ -96,22 +96,22 @@ class ExtractedDataDirectory(Directory):
     DEFAULT_EMPTY_ARGS = {
         ("source_count", lambda: 0),
         ("sources", lambda: {}),
-        ("source_columns", lambda: {}),
     }
 
     SUBDIRECTORY_TYPES = (ExtractionSourceDirectory,)
 
     @classmethod
     def add_initial_content(cls, path: Path, **kwargs):
+        source_columns_path = path / "source_columns.csv"
+        source_columns_path.touch(mode=0o664)
+        with open(source_columns_path, "w") as f:
+            f.write(templates.SOURCE_COLUMNS)
+
         git.init(path)
 
     @property
     def sources(self):
         return self["sources"].copy()
-
-    @property
-    def source_columns(self):
-        return self["source_columns"].copy()
 
     def get_source_directory(self, source_name: str) -> ExtractionSourceDirectory:
         if source_name not in self.sources:
@@ -188,40 +188,3 @@ class ExtractedDataDirectory(Directory):
         git.add_and_commit(self.path, f"Removed source {source_name}.")
 
         return source_directory_dict
-
-    def add_source_column(
-        self,
-        source_column_name: str,
-        source_column_type: str,
-        is_nullable: bool,
-        description: str,
-    ):
-        """Add a source column to the extracted data directory."""
-        if source_column_name in self.source_columns:
-            raise SteamfitterException(f"Source column {source_column_name} already exists.")
-        self.update(
-            {
-                "source_columns": {
-                    **self["source_columns"],
-                    source_column_name: (source_column_type, is_nullable, description),
-                },
-            }
-        )
-        self._metadata.persist()
-
-        git.add_and_commit(self.path, f"Added source column {source_column_name}.")
-
-    def remove_source_column(self, source_column_name: str):
-        """Remove a source column from the extracted data directory."""
-        source_columns = self.source_columns
-        if source_column_name not in source_columns:
-            raise SteamfitterException(f"Source column {source_column_name} does not exist.")
-
-        source_column_features = source_columns.pop(source_column_name)
-        self["source_columns"] = source_columns
-
-        self._metadata.persist()
-
-        git.add_and_commit(self.path, f"Removed source column {source_column_name}.")
-
-        return source_column_features

@@ -1,5 +1,6 @@
-EXTRACTION = '''
-"""Extraction template for {source_name}."""
+SOURCE_COLUMNS = '''column_name,data_type,is_nullable,description'''
+
+EXTRACTION = '''"""Extraction template for {source_name}."""
 from pathlib import Path
 
 import click
@@ -62,25 +63,22 @@ def validate_data(output_root: Path):
             raise ValueError(f"Column {{column_name}} is not of type {{column_type}}.")
 
 
-@click.command(name=extract_{source_name})
+@click.command
 @click.option("--output-root", type=click.Path(exists=True), default=".")
-@options.verbose_and_with_debugger
+@click_options.verbose_and_with_debugger
 def main(output_root: str, verbose: int, with_debugger: bool):
     """Extract and format data from the source."""
     output_root = Path(output_root)
     configure_logging_to_terminal(verbose)
     main_ = monitoring.handle_exceptions(run, logger, with_debugger)
-    return main_(source_name, project_name)
-    
-    
+    return main_(output_root)
+        
     
 if __name__ == "__main__":
     main()
-
 '''
 
-GITIGNORE = """
-# Byte-compiled / optimized / DLL files
+GITIGNORE = """# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class

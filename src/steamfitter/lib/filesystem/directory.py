@@ -54,6 +54,8 @@ class Directory:
         """Create a new directory."""
         name = cls.make_name(root=root, **kwargs)
         path = root / name
+        if "name" not in kwargs:
+            kwargs["name"] = name
 
         metadata_args = {
             "root": path,
