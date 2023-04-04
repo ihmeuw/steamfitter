@@ -9,6 +9,7 @@ from steamfitter.app.commands.project import add as _add_project
 from steamfitter.app.commands.project import list as _list_project
 from steamfitter.app.commands.project import remove as _remove_project
 from steamfitter.app.commands.source import add as _add_source
+from steamfitter.app.commands.source import extract as _extract_source
 from steamfitter.app.commands.source import list as _list_source
 from steamfitter.app.commands.source import remove as _remove_source
 from steamfitter.app.commands.source_column import add as _add_source_column
@@ -63,6 +64,7 @@ add_project = SteamfitterCommand.from_module(_add_project)
 list_project = SteamfitterCommand.from_module(_list_project)
 remove_project = SteamfitterCommand.from_module(_remove_project)
 add_source = SteamfitterCommand.from_module(_add_source)
+extract_source = SteamfitterCommand.from_module(_extract_source)
 list_source = SteamfitterCommand.from_module(_list_source)
 remove_source = SteamfitterCommand.from_module(_remove_source)
 add_source_column = SteamfitterCommand.from_module(_add_source_column)

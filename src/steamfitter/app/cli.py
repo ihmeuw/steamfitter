@@ -36,6 +36,15 @@ add.add_command(commands.add_source.cli, name="source")
 
 
 @steamfitter.group()
+def extract():
+    """Extracts data from data sources."""
+    pass
+
+
+extract.add_command(commands.extract_source.cli, name="source")
+
+
+@steamfitter.group()
 def remove():
     """Removes projects, data source, modeling stages, etc."""
     pass
@@ -90,5 +99,6 @@ def source():
 
 
 source.add_command(commands.add_source.cli, name="add")
+source.add_command(commands.extract_source.cli, name="extract")
 source.add_command(commands.remove_source.cli, name="remove")
 source.add_command(commands.list_source.cli, name="list")
