@@ -22,7 +22,10 @@ def run(output_root: Path):
 
 def extract_data(output_root: Path):
     """Extract data from the source."""
-    pass
+    # E.g.:
+    url = "https://example.com/data.csv"
+    df = pd.read_csv(url)
+    df.to_csv(output_root / "raw_data.csv", index=False)
 
 
 def format_data(output_root: Path):
