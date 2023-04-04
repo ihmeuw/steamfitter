@@ -1,5 +1,7 @@
 EXTRACTION = '''
 """Extraction template for {source_name}."""
+from pathlib import Path
+
 import click
 
 from steamfitter.app import options
@@ -60,8 +62,12 @@ def validate_data(output_root: Path):
 @click.command(name=extract_{source_name})
 @click.option("--output-root", type=click.Path(exists=True), default=".")
 @options.verbose_and_with_debugger
-def main(output_root: Path, verbose: int, with_debugger: bool):
+def main(output_root: str, verbose: int, with_debugger: bool):
     """Extract and format data from the source."""
+    output_root = Path(output_root)
+    configure_logging_to_terminal(verbose)
+    main_ = monitoring.handle_exceptions(run, logger, with_debugger)
+    return main_(source_name, project_name)
     
     
     
