@@ -8,6 +8,7 @@ from steamfitter.app.directory_structure.deliverables import DeliverablesDirecto
 from steamfitter.app.directory_structure.extracted_data import (
     ExtractedDataDirectory,
     ExtractionSourceDirectory,
+    ExtractionSourceVersionDirectory,
 )
 from steamfitter.app.directory_structure.modeling import (
     ModelingDirectory,

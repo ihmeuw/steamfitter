@@ -72,9 +72,9 @@ default_project_name = click.option(
     callback=clean_string_callback,
 )
 serialize = click.option(
-    "--serialize",
+    "--as_dict",
     "-s",
     is_flag=True,
-    help="Whether to serialize a directory upon removal. Used for testing.",
+    help="Whether to as_dict a directory upon removal. Used for testing.",
     hidden=True,
 )

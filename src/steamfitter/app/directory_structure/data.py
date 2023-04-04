@@ -30,23 +30,23 @@ class DataDirectory(Directory):
     @property
     def extracted_data_directory(self) -> ExtractedDataDirectory:
         if not hasattr(self, "_extracted_data_directory"):
-            self._extracted_data_directory = self.get_solo_directory_by_class(
-                ExtractedDataDirectory
+            self._extracted_data_directory = self.get_subdirectory(
+                directory_class=ExtractedDataDirectory,
             )
         return self._extracted_data_directory
 
     @property
     def processed_data_directory(self) -> ProcessedDataDirectory:
         if not hasattr(self, "_processed_data_directory"):
-            self._processed_data_directory = self.get_solo_directory_by_class(
-                ProcessedDataDirectory
+            self._processed_data_directory = self.get_subdirectory(
+                directory_class=ProcessedDataDirectory,
             )
         return self._processed_data_directory
 
     @property
     def data_diagnostics_directory(self) -> DataDiagnosticsDirectory:
         if not hasattr(self, "_data_diagnostics_directory"):
-            self._data_diagnostics_directory = self.get_solo_directory_by_class(
-                DataDiagnosticsDirectory
+            self._data_diagnostics_directory = self.get_subdirectory(
+                directory_class=DataDiagnosticsDirectory,
             )
         return self._data_diagnostics_directory

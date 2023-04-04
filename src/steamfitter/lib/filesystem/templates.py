@@ -2,6 +2,22 @@ EXTRACTION = '''
 """Extraction template for {source_name}."""
 import click
 
+from steamfitter.app import options
+from steamfitter.lib.cli_tools import (
+    click_options,
+    configure_logging_to_terminal,
+    logger,
+    monitoring,
+)
+
+
+def run(output_root: Path):
+    """Run the extraction pipeline for {source_name}."""
+    extract_data(output_root)
+    format_data(output_root)
+    validate_data(output_root)
+    
+
 def extract_data(output_root: Path):
     """Extract data from the source."""
     pass
@@ -43,10 +59,14 @@ def validate_data(output_root: Path):
 
 @click.command(name=extract_{source_name})
 @click.option("--output-root", type=click.Path(exists=True), default=".")
-def main(output_root: Path):
+@options.verbose_and_with_debugger
+def main(output_root: Path, verbose: int, with_debugger: bool):
     """Extract and format data from the source."""
-    extract_data(output_root)
-    format_data(output_root)
+    
+    
+    
+if __name__ == "__main__":
+    main()
 
 '''
 

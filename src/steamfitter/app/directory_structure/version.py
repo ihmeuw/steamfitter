@@ -17,7 +17,7 @@ from steamfitter.lib.filesystem import Directory
 
 class VersionDirectory(Directory):
     NAME_TEMPLATE = "{launch_time}.{run_version:0>2}"
-    DESCRIPTION_TEMPLATE = "Version {version} of {versionable_dir_name}."
+    DESCRIPTION_TEMPLATE = "Version {name} of {parent_name}."
 
     @classmethod
     def make_name(cls, root: Path, **kwargs) -> str:

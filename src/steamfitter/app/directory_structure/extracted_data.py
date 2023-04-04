@@ -7,6 +7,7 @@ An extracted data directory is a project subdirectory for storing data extracted
 external sources.
 
 """
+import importlib.util
 import shutil
 from pathlib import Path
 
@@ -14,6 +15,45 @@ from steamfitter.app import git
 from steamfitter.app.directory_structure.version import VersionDirectory
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory, templates
+
+
+class Extractor:
+    def __init__(self, extractor_path: Path):
+        self._root = extractor_path.parent
+        # Create a module specification using the filepath
+        spec = importlib.util.spec_from_file_location("extractor", extractor_path)
+        # Load the module using the specification
+        self._extractor = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self._extractor)
+
+    def extract(self):
+        self._extractor.extract(self._root)
+
+    def format(self):
+        self._extractor.format(self._root)
+
+    def validate(self):
+        self._extractor.validate(self._root)
+
+    def run(self):
+        self.extract()
+        self.format()
+        self.validate()
+
+
+class ExtractionSourceVersionDirectory(VersionDirectory):
+    @classmethod
+    def add_initial_content(cls, path: Path, **kwargs):
+        template_path = path.parent / "extraction_template.py"
+        extractor_path = path / "extract.py"
+        shutil.copy2(template_path, extractor_path)
+
+    @property
+    def extractor_path(self) -> Path:
+        return self.path / "extract.py"
+
+    def get_extractor(self):
+        return importlib.import_module(self.extractor_path)
 
 
 class ExtractionSourceDirectory(Directory):
@@ -61,6 +101,10 @@ class ExtractedDataDirectory(Directory):
 
     SUBDIRECTORY_TYPES = (ExtractionSourceDirectory,)
 
+    @classmethod
+    def add_initial_content(cls, path: Path, **kwargs):
+        git.init(path)
+
     @property
     def sources(self):
         return self["sources"].copy()
@@ -68,6 +112,17 @@ class ExtractedDataDirectory(Directory):
     @property
     def source_columns(self):
         return self["source_columns"].copy()
+
+    def get_source_directory(self, source_name: str) -> ExtractionSourceDirectory:
+        if source_name not in self.sources:
+            raise SteamfitterException(f"Source {source_name} does not exist.")
+        source_count = self.sources[source_name]
+        source_path = self.path / ExtractionSourceDirectory.make_name(
+            root=self.path,
+            source_count=source_count,
+            source_name=source_name,
+        )
+        return ExtractionSourceDirectory(source_path, self)
 
     def add_source(self, source_name: str, description: str):
         """Add a source to the extracted data directory."""
@@ -108,7 +163,7 @@ class ExtractedDataDirectory(Directory):
             source_name=source_name,
         )
         if serialize:
-            source_directory_dict = ExtractionSourceDirectory(source_path, self).serialize()
+            source_directory_dict = ExtractionSourceDirectory(source_path, self).as_dict()
         else:
             source_directory_dict = {}
         shutil.rmtree(source_path, ignore_errors=True)
@@ -170,7 +225,3 @@ class ExtractedDataDirectory(Directory):
         git.add_and_commit(self.path, f"Removed source column {source_column_name}.")
 
         return source_column_features
-
-    @classmethod
-    def add_initial_content(cls, path: Path, **kwargs):
-        git.init(path)

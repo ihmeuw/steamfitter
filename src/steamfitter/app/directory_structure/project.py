@@ -34,22 +34,26 @@ class ProjectDirectory(Directory):
     def archive_directory(self) -> ArchiveDirectory:
         if not hasattr(self, "_archive_directory"):
             # noinspection PyAttributeOutsideInit
-            self._archive_directory = self.get_solo_directory_by_class(ArchiveDirectory)
+            self._archive_directory = self.get_subdirectory(
+                directory_class=ArchiveDirectory,
+            )
         return self._archive_directory
 
     @property
     def data_directory(self) -> DataDirectory:
         if not hasattr(self, "_data_directory"):
             # noinspection PyAttributeOutsideInit
-            self._data_directory = self.get_solo_directory_by_class(DataDirectory)
+            self._data_directory = self.get_subdirectory(
+                directory_class=DataDirectory,
+            )
         return self._data_directory
 
     @property
     def deliverables_directory(self) -> DeliverablesDirectory:
         if not hasattr(self, "_deliverables_directory"):
             # noinspection PyAttributeOutsideInit
-            self._deliverables_directory = self.get_solo_directory_by_class(
-                DeliverablesDirectory
+            self._deliverables_directory = self.get_subdirectory(
+                directory_class=DeliverablesDirectory,
             )
         return self._deliverables_directory
 
@@ -57,5 +61,7 @@ class ProjectDirectory(Directory):
     def modeling_directory(self) -> ModelingDirectory:
         if not hasattr(self, "_modeling_directory"):
             # noinspection PyAttributeOutsideInit
-            self._modeling_directory = self.get_solo_directory_by_class(ModelingDirectory)
+            self._modeling_directory = self.get_subdirectory(
+                directory_class=ModelingDirectory,
+            )
         return self._modeling_directory

@@ -73,7 +73,7 @@ def _add_logging_sink(
     colorize
         Whether to colorize the log messages.
     serialize
-        Whether to serialize log messages.  This is useful when logging to
+        Whether to as_dict log messages.  This is useful when logging to
         a file or a database.
 
     """

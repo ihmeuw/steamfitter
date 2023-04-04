@@ -31,7 +31,7 @@ def run(project_name: str, serialize: bool) -> Tuple[str, bool, dict]:
 
     project_directory_path = config.projects_root / project_name
     if serialize:
-        project_directory_dict = ProjectDirectory(project_directory_path).serialize()
+        project_directory_dict = ProjectDirectory(project_directory_path).as_dict()
     else:
         project_directory_dict = {}
 
@@ -48,7 +48,7 @@ def unrun(project_name: str, was_default: bool, project_directory_dict: dict, *_
     any files that were deleted after the project was created."""
     config = get_configuration()
     config.add_project(project_name, set_default=was_default)
-    ProjectDirectory.deserialize(project_directory_dict)
+    ProjectDirectory.create_from_dict(project_directory_dict)
 
     click.echo(f"Project {project_name} restored to the configuration.")
 

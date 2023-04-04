@@ -38,7 +38,7 @@ def run(source_name: str, project_name: str, serialize: bool):
 
 
 def unrun(source_directory_dict: dict, *_) -> None:
-    ExtractionSourceDirectory.deserialize(source_directory_dict)
+    ExtractionSourceDirectory.create_from_dict(source_directory_dict)
 
 
 @click.command(name="remove_source")
