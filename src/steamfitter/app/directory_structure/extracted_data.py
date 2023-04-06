@@ -114,7 +114,7 @@ class ExtractionSourceDirectory(Directory):
 class ExtractedDataDirectory(Directory):
     IS_INITIAL_DIRECTORY = True
 
-    NAME_TEMPLATE = "extracted_data"
+    NAME_TEMPLATE = "extracted-data"
     DESCRIPTION_TEMPLATE = "Extracted data for the {project_name} project."
 
     DEFAULT_EMPTY_ARGS = {

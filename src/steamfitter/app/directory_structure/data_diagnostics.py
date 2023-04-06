@@ -27,7 +27,7 @@ class DataDiagnosticsDirectory(Directory):
     IS_INITIAL_DIRECTORY = True
     DEFAULT_ARCHIVE_POLICY = ARCHIVE_POLICIES.delete
 
-    NAME_TEMPLATE = "data_diagnostics"
+    NAME_TEMPLATE = "data-diagnostics"
     DESCRIPTION_TEMPLATE = "Data diagnostics for the {project_name} project."
 
     SUBDIRECTORY_TYPES = (DiagnosticDirectory,)

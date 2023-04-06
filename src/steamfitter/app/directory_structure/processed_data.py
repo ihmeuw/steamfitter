@@ -28,7 +28,7 @@ class ProcessedMeasureDirectory(Directory):
 class ProcessedDataDirectory(Directory):
     IS_INITIAL_DIRECTORY = True
 
-    NAME_TEMPLATE = "processed_data"
+    NAME_TEMPLATE = "processed-data"
     DESCRIPTION_TEMPLATE = "Processed measure data for the {project_name} project."
 
     DEFAULT_EMPTY_ARGS = {
