@@ -1,14 +1,14 @@
 SOURCE_COLUMNS = '''columns:
-  - name: "column_name1" # The name of the expected column
-    data_type: "column_data_type" # One of [str, int, float, bool, datetime]
-    description: "Column description" # A description of the column
-    is_nullable: True # True or False, whether the column can contain null values
-    members: [] # A list of the possible values for the column, if it is categorical. Ignored if empty.
-  - name: "column_name2" # The name of the expected column
-    data_type: "column_data_type" # One of [str, int, float, bool, datetime]
-    description: "Column description" # A description of the column
-    is_nullable: True # True or False, whether the column can contain null values
-    members: [] # A list of the possible values for the column, if it is categorical. Ignored if empty.
+  - name: "column_name1"               # The name of the expected column
+    data_type: "column_data_type"      # One of [str, int, float, bool, datetime]
+    description: "Column description"  # A description of the column
+    is_nullable: True                  # True or False, whether the column can contain null values
+    members: []                        # A list of the possible values for the column, if it is categorical. Ignored if empty.
+  - name: "column_name2" 
+    data_type: "column_data_type" 
+    description: "Column description" 
+    is_nullable: True 
+    members: [] 
 '''
 
 

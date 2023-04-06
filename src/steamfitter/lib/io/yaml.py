@@ -27,7 +27,7 @@ def load(path: Path) -> Dict:
 
     """
     if not path.exists():
-        raise FileNotFoundError(f"Metadata file {path} does not exist.")
+        raise FileNotFoundError(f"File {path} does not exist.")
     with path.open() as f:
         data = yaml.safe_load(f)
 

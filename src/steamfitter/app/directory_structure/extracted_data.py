@@ -14,10 +14,11 @@ import shutil
 
 import pandas as pd
 
-from steamfitter.lib import git
 from steamfitter.app.directory_structure.version import VersionDirectory
+from steamfitter.lib import git
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory, templates
+from steamfitter.lib.io import yaml
 
 
 class Extractor:
@@ -130,11 +131,11 @@ class ExtractedDataDirectory(Directory):
 
     @property
     def source_columns_path(self) -> Path:
-        return self.path / "source_columns.csv"
+        return self.path / "source_columns.yaml"
 
     @property
-    def source_columns(self) -> pd.DataFrame:
-        return pd.read_csv(self.source_columns_path)
+    def source_columns(self) -> dict:
+        return yaml.load(self.source_columns_path)
 
     def get_source_directory(self, source_name: str) -> ExtractionSourceDirectory:
         if source_name not in self.sources:

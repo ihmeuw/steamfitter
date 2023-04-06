@@ -10,6 +10,7 @@ from pathlib import Path
 
 import click
 import pandas as pd
+import yaml
 
 from steamfitter.app import options
 from steamfitter.app.directory_structure import ExtractionSourceVersionDirectory
@@ -21,6 +22,7 @@ from steamfitter.lib.cli_tools import (
     logger,
     monitoring,
 )
+from steamfitter.lib.filesystem import templates
 
 
 def run(source_name, project_name) -> Path:
@@ -33,7 +35,8 @@ def run(source_name, project_name) -> Path:
         raise SourceDoesNotExistError(source_name=source_name, project_name=project_name)
 
     source_columns = extracted_data_directory.source_columns
-    if source_columns.empty:
+    default_source_columns = yaml.safe_load(templates.SOURCE_COLUMNS)
+    if source_columns == default_source_columns:
         raise NoSourceColumnsError(
             source_column_path=extracted_data_directory.source_columns_path,
         )
@@ -52,9 +55,6 @@ def _validate_extracted_data(
     formatted_data = pd.read_csv(version_directory / "formatted_data.csv")
     import pdb; pdb.set_trace()
     expected_cols = set(formatted_data.columns).intersection(set(source_columns["name"]))
-
-
-
 
 
 def unrun(source_version_directory_path: Path):
