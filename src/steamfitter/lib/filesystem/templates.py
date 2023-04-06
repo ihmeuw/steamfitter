@@ -3,9 +3,9 @@ SOURCE_COLUMNS = '''column_name,data_type,is_nullable,description'''
 EXTRACTION = '''"""Extraction template for {source_name}."""
 from pathlib import Path
 
+import pandas as pd
 import click
 
-from steamfitter.app import options
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -18,7 +18,6 @@ def run(output_root: Path):
     """Run the extraction pipeline for {source_name}."""
     extract_data(output_root)
     format_data(output_root)
-    validate_data(output_root)
     
 
 def extract_data(output_root: Path):
@@ -35,32 +34,6 @@ def format_data(output_root: Path):
     df = pd.read_csv(output_root / "raw_data.csv")
     # ... data formatting code ...
     df.to_csv(output_root / "formatted_data.csv")
-
-
-def validate_data(output_root: Path):
-    """Validate data for use in the project."""
-    schema = [
-        # (column_name, column_type, is_nullable)
-        ("column_1", int, True),
-        ("column_2", str, True),
-        ("column_3", float, False),
-    ]
-
-    df = pd.read_csv(output_root / "formatted_data.csv")
-    extra = df.columns.difference({{column_name for column_name, _, _ in schema}})
-    missing = {{column_name for column_name, _, _ in schema}}.difference(df.columns)
-    if extra:
-        raise ValueError(f"Data contains unexpected columns: {{extra}}")
-    if missing:
-        raise ValueError(f"Data is missing columns: {{missing}}")
-
-    for column_name, column_type, is_nullable in schema:
-        if column_name not in df.columns:
-            raise ValueError(f"Column {{column_name}} not found in data.")
-        if not is_nullable and df[column_name].isnull().any():
-            raise ValueError(f"Column {{column_name}} contains null values.")
-        if df[column_name].dtype != column_type:
-            raise ValueError(f"Column {{column_name}} is not of type {{column_type}}.")
 
 
 @click.command
@@ -190,10 +163,10 @@ venv.bak/
 # Local user jupyter notebooks directory
 notebooks/
 
-# metadata files
-metadata.yaml
-
-# Versioned data directories
-*/*/***
+# Data files
+*.csv
+*.hdf
+*.hdf5
+*.parquet
 
 """
