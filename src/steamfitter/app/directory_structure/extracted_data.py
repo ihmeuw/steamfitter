@@ -12,8 +12,6 @@ import importlib.util
 from pathlib import Path
 import shutil
 
-import pandas as pd
-
 from steamfitter.app.directory_structure.version import VersionDirectory
 from steamfitter.lib import git
 from steamfitter.lib.exceptions import SteamfitterException
@@ -61,6 +59,7 @@ class ExtractionSourceDirectory(Directory):
 
     NAME_TEMPLATE = "{source_count:>06}-{source_name}"
 
+    CREATION_ARGS = {'source_name', 'source_count'}
     DEFAULT_EMPTY_ARGS = {
         ("last_updated", lambda: ""),
         ("latest_version", lambda: ""),
@@ -80,10 +79,14 @@ class ExtractionSourceDirectory(Directory):
     def add_initial_content(cls, path: Path, **kwargs):
         source_name = kwargs["source_name"]
         extraction_template_path = path / "extraction_template.py"
-
         extraction_template_path.touch(mode=0o664)
         with open(extraction_template_path, "w") as f:
             f.write(templates.EXTRACTION.format(source_name=source_name))
+
+        gitignore_path = path / ".gitignore"
+        gitignore_path.touch(mode=0o664)
+        with open(gitignore_path, "w") as f:
+            f.write(templates.VERSION_GITIGNORE)
 
     def extract_new_version(self) -> ExtractionSourceVersionDirectory:
         source_name = self.path.name.split("-", maxsplit=1)[1]
@@ -100,7 +103,10 @@ class ExtractionSourceDirectory(Directory):
 
         self["latest_version"] = str(version_directory.path)
         self._metadata.persist()
-        git.commit_and_push(self.path, f"Extracted new version of {source_name}.")
+        git.commit_and_push(
+            self.path,
+            f"Extracted version {version_directory.path.name} of {source_name}.",
+        )
 
         return version_directory
 

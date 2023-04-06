@@ -63,7 +63,7 @@ if __name__ == "__main__":
     main()
 '''
 
-GITIGNORE = """# Byte-compiled / optimized / DLL files
+MAIN_GITIGNORE = """# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
@@ -175,10 +175,8 @@ venv.bak/
 # Local user jupyter notebooks directory
 notebooks/
 
-# Data files
-*.csv
-*.hdf
-*.hdf5
-*.parquet
+"""
 
+VERSION_GITIGNORE = """# Ignore version subdirectories
+*.[0-9][0-9]/
 """

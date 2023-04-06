@@ -21,7 +21,7 @@ def init(path: Path, git_remote: Union[str, None]) -> None:
         gitignore_path.touch(mode=0o664)
 
         with open(gitignore_path, "w") as f:
-            f.write(templates.GITIGNORE)
+            f.write(templates.MAIN_GITIGNORE)
         repo.git.add(A=True)
         repo.index.commit("Initial commit.")
         _create_remote(path, git_remote)
