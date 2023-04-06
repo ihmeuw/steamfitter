@@ -119,7 +119,7 @@ class ExtractedDataDirectory(Directory):
 
     @classmethod
     def add_initial_content(cls, path: Path, **kwargs):
-        source_columns_path = path / "source_columns.csv"
+        source_columns_path = path / "source_columns.yaml"
         source_columns_path.touch(mode=0o664)
         with open(source_columns_path, "w") as f:
             f.write(templates.SOURCE_COLUMNS)
