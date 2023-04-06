@@ -9,11 +9,12 @@ Extract data for a steamfitter project source
 from pathlib import Path
 
 import click
+import pandas as pd
 
 from steamfitter.app import options
 from steamfitter.app.directory_structure import ExtractionSourceVersionDirectory
 from steamfitter.app.utilities import get_project_directory
-from steamfitter.app.validation import SourceDoesNotExistError
+from steamfitter.app.validation import SourceDoesNotExistError, NoSourceColumnsError
 from steamfitter.lib.cli_tools import (
     click_options,
     configure_logging_to_terminal,
@@ -31,19 +32,29 @@ def run(source_name, project_name) -> Path:
     if source_name not in extracted_data_directory.sources:
         raise SourceDoesNotExistError(source_name=source_name, project_name=project_name)
 
+    source_columns = extracted_data_directory.source_columns
+    if source_columns.empty:
+        raise NoSourceColumnsError(
+            source_column_path=extracted_data_directory.source_columns_path,
+        )
+
     source_directory = extracted_data_directory.get_source_directory(source_name)
-
-    # Make version subdirectory
-    source_version_directory = ExtractionSourceVersionDirectory.create(
-        source_directory.path,
-        parent=source_directory,
-        parent_name=source_name,
-    )
-
-    extractor = source_version_directory.get_extractor()
-    extractor.run()
+    source_version_directory = source_directory.extract_new_version()
 
     return source_version_directory.path
+
+
+def _validate_extracted_data(
+    version_directory: Path,
+    source_columns: pd.DataFrame,
+):
+    """Validate extracted data."""
+    formatted_data = pd.read_csv(version_directory / "formatted_data.csv")
+    import pdb; pdb.set_trace()
+    expected_cols = set(formatted_data.columns).intersection(set(source_columns["name"]))
+
+
+
 
 
 def unrun(source_version_directory_path: Path):

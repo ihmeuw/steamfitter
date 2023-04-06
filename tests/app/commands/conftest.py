@@ -1,6 +1,6 @@
 import pytest
 
-from steamfitter.app import git
+from steamfitter.lib import git
 
 
 @pytest.fixture(scope="session", autouse=True)

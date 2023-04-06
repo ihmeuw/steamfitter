@@ -22,7 +22,12 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def run(project_name: str, description: str, set_default: bool) -> Tuple[str, str]:
+def run(
+    project_name: str,
+    description: str,
+    set_default: bool,
+    git_remote: str,
+) -> Tuple[str, str]:
     config = get_configuration()
 
     if project_name in config.projects:
@@ -35,6 +40,7 @@ def run(project_name: str, description: str, set_default: bool) -> Tuple[str, st
         config.projects_root,
         name=project_name,
         description=description,
+        git_remote=git_remote,
     )
 
     click.echo(f"Project {project_name} added to the configuration.")
@@ -53,15 +59,17 @@ def unrun(project_name: str, old_default: str, *_) -> None:
 @options.project_name_required
 @options.description
 @options.set_default
+@options.git_remote
 @click_options.verbose_and_with_debugger
 def main(
     project_name: str,
     description: str,
     set_default: bool,
+    git_remote: str,
     verbose: int,
     with_debugger: bool,
 ):
     """Adds a steamfitter managed project."""
     configure_logging_to_terminal(verbose)
     main_ = monitoring.handle_exceptions(run, logger, with_debugger)
-    return main_(project_name, description, set_default)
+    return main_(project_name, description, set_default, git_remote)

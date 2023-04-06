@@ -55,3 +55,9 @@ class SourceDoesNotExistError(SteamfitterCLIException):
 
 class NoSourcesExistError(SteamfitterCLIException):
     message = "No sources exist in project {project_name}."
+
+
+class NoSourceColumnsError(SteamfitterCLIException):
+    message = ("No extraction source columns are listed in {source_column_path} "
+               "so extraction outputs cannot be validated. Please add expected extraction "
+               "source columns.")

@@ -67,3 +67,7 @@ serialize = click.option(
     help="Whether to as_dict a directory upon removal. Used for testing.",
     hidden=True,
 )
+git_remote = click.option(
+    "--git-remote",
+    help="The url for the remote git repository.",
+)

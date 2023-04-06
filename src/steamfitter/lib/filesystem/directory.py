@@ -9,6 +9,7 @@ from typing import Any, Callable, Dict, List, Set, Tuple, Type, TypeVar
 
 import inflection
 
+from steamfitter.lib import git
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem.archive import ARCHIVE_POLICIES
 from steamfitter.lib.filesystem.metadata import Metadata
@@ -29,6 +30,7 @@ class Directory:
     """Base class for all directories in a project."""
 
     IS_INITIAL_DIRECTORY: bool = False
+    IS_GIT_ROOT: bool = False
     DEFAULT_ARCHIVE_POLICY: bool = ARCHIVE_POLICIES.invalid
 
     NAME_TEMPLATE: str = "{name}"
@@ -83,6 +85,10 @@ class Directory:
                     exists_ok=exists_ok,
                     **kwargs,
                 )
+
+        if cls.IS_GIT_ROOT:
+            git_remote = kwargs.get("git_remote")
+            directory.__initialize_git(path, git_remote)
 
         return cls(path)
 
@@ -278,3 +284,7 @@ class Directory:
         directory = self._subdirectories[directory_type]
         assert len(directory) == 1
         return directory[0]
+
+    @staticmethod
+    def __initialize_git(path: Path, git_remote: str) -> None:
+        git.init(path, git_remote)

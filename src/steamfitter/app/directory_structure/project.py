@@ -17,6 +17,9 @@ from steamfitter.lib.filesystem import Directory
 
 class ProjectDirectory(Directory):
     IS_INITIAL_DIRECTORY = True
+    IS_GIT_ROOT = True
+
+    CREATION_ARGS = {'git_remote'}
 
     SUBDIRECTORY_TYPES = (
         ArchiveDirectory,

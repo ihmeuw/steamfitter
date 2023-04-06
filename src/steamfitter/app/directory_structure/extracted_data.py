@@ -7,11 +7,14 @@ An extracted data directory is a project subdirectory for storing data extracted
 external sources.
 
 """
+import datetime
 import importlib.util
-import shutil
 from pathlib import Path
+import shutil
 
-from steamfitter.app import git
+import pandas as pd
+
+from steamfitter.lib import git
 from steamfitter.app.directory_structure.version import VersionDirectory
 from steamfitter.lib.exceptions import SteamfitterException
 from steamfitter.lib.filesystem import ARCHIVE_POLICIES, Directory, templates
@@ -32,13 +35,9 @@ class Extractor:
     def format(self):
         self._extractor.format_data(self._root)
 
-    def validate(self):
-        self._extractor.validate_data(self._root)
-
     def run(self):
         self.extract()
         self.format()
-        self.validate()
 
 
 class ExtractionSourceVersionDirectory(VersionDirectory):
@@ -64,7 +63,6 @@ class ExtractionSourceDirectory(Directory):
     DEFAULT_EMPTY_ARGS = {
         ("last_updated", lambda: ""),
         ("latest_version", lambda: ""),
-        ("best_version", lambda: ""),
     }
 
     SUBDIRECTORY_TYPES = (VersionDirectory,)
@@ -85,6 +83,25 @@ class ExtractionSourceDirectory(Directory):
         extraction_template_path.touch(mode=0o664)
         with open(extraction_template_path, "w") as f:
             f.write(templates.EXTRACTION.format(source_name=source_name))
+
+    def extract_new_version(self) -> ExtractionSourceVersionDirectory:
+        source_name = self.path.name.split("-", maxsplit=1)[1]
+        self["last_updated"] = datetime.datetime.now().strftime("%Y_%m_%d")
+
+        version_directory = ExtractionSourceVersionDirectory.create(
+            root=self.path,
+            parent=self,
+            parent_name=source_name,
+        )
+        extractor = version_directory.get_extractor()
+
+        extractor.run()
+
+        self["latest_version"] = str(version_directory.path)
+        self._metadata.persist()
+        git.commit_and_push(self.path, f"Extracted new version of {source_name}.")
+
+        return version_directory
 
 
 class ExtractedDataDirectory(Directory):
@@ -107,11 +124,17 @@ class ExtractedDataDirectory(Directory):
         with open(source_columns_path, "w") as f:
             f.write(templates.SOURCE_COLUMNS)
 
-        git.init(path)
-
     @property
     def sources(self):
         return self["sources"].copy()
+
+    @property
+    def source_columns_path(self) -> Path:
+        return self.path / "source_columns.csv"
+
+    @property
+    def source_columns(self) -> pd.DataFrame:
+        return pd.read_csv(self.source_columns_path)
 
     def get_source_directory(self, source_name: str) -> ExtractionSourceDirectory:
         if source_name not in self.sources:
@@ -146,7 +169,7 @@ class ExtractedDataDirectory(Directory):
         )
         self._metadata.persist()
 
-        git.add_and_commit(self.path, f"Added source {source_name}.")
+        git.commit_and_push(self.path, f"Added source {source_name}.")
 
     def remove_source(
         self, source_name: str, serialize: bool = False, destructive: bool = False
@@ -185,6 +208,6 @@ class ExtractedDataDirectory(Directory):
             )
 
         self._metadata.persist()
-        git.add_and_commit(self.path, f"Removed source {source_name}.")
+        git.commit_and_push(self.path, f"Removed source {source_name}.")
 
         return source_directory_dict

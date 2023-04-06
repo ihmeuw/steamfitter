@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Union
 
-from git import Repo
+from git import Repo, InvalidGitRepositoryError
 
 from steamfitter.lib.filesystem import templates
 
@@ -30,7 +30,7 @@ def init(path: Path, git_remote: Union[str, None]) -> None:
 def commit_and_push(path: Path, message: str) -> None:
     """Add and commit changes to the git repository."""
     if GIT_ENABLED:
-        repo = Repo(path)
+        repo = _find_repo(path)
         repo.git.add(A=True)
         repo.index.commit(message)
         _push(path)
@@ -40,10 +40,18 @@ def commit_and_push(path: Path, message: str) -> None:
 # Helpers #
 ###########
 
+def _find_repo(path: Path) -> Repo:
+    """Find the git repository."""
+    try:
+        return Repo(path)
+    except InvalidGitRepositoryError:
+        return _find_repo(path.parent)
+
+
 def _create_remote(path: Path, git_remote: str) -> None:
     """Create the git remote."""
     if GIT_ENABLED:
-        repo = Repo(path)
+        repo = _find_repo(path)
         repo.git.remote('add', 'origin', git_remote)
         repo.git.push('-u', 'origin', 'HEAD:main')
 
@@ -51,6 +59,6 @@ def _create_remote(path: Path, git_remote: str) -> None:
 def _push(path: Path) -> None:
     """Push changes to the git repository."""
     if GIT_ENABLED:
-        repo = Repo(path)
+        repo = _find_repo(path)
         if 'origin' in repo.remotes:
             repo.git.push()
