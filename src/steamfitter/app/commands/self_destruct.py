@@ -18,12 +18,13 @@ from steamfitter.lib.cli_tools import (
 )
 
 
-def run():
+def run(yes: bool):
     configuration = get_configuration()
-    click.confirm(
-        "Are you sure you want to destroy all projects and configuration?",
-        abort=True,
-    )
+    if not yes:
+        click.confirm(
+            "Are you sure you want to destroy all projects and configuration?",
+            abort=True,
+        )
     for project in configuration.projects:
         click.echo(f"Removing project: {project}")
         ProjectDirectory.remove(configuration.projects_root / project)
@@ -37,9 +38,10 @@ def unrun(*_):
 
 
 @click.command(hidden=True, name="self_destruct")
+@click.option('--yes', '-y', is_flag=True, help="Skip confirmation prompt.")
 @click_options.verbose_and_with_debugger
-def main(verbose: int, with_debugger: bool):
+def main(yes: bool, verbose: int, with_debugger: bool):
     """Destroy the configuration file and all projects managed by steamfitter."""
     configure_logging_to_terminal(verbose)
     main_ = monitoring.handle_exceptions(run, logger, with_debugger)
-    return main_()
+    return main_(yes)
