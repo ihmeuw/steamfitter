@@ -5,7 +5,7 @@
 <!-- For use in commit message, wrap at 72 chars. 72 chars is here: -->
 *Category*: <!-- one of bugfix, feature, refactor, POC, CI/infrastructure, documentation, 
                    revert, test, release, other/misc -->
-*Issue*: https://github.com/ihmeuw/ght-scrapers/issues/<!-- number of issue -->
+*Issue*: https://github.com/ihmeuw/steamfitter/issues/<!-- number of issue -->
 
 <!-- 
 Change description – why, what, anything unexplained by the above.
